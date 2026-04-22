@@ -1,3 +1,30 @@
+/*
+AB Layout (Advocate Benefit Layout)
+Version: 1.0
+
+Description:
+Core logic file for AB Layout Word Add-in.
+
+Purpose:
+- Fetch layouts from GitHub (layouts.json)
+- Populate UI (State → Court)
+- Apply selected layout to entire document
+- Store previous layout for undo functionality
+- Handle errors and status updates
+
+Key Features:
+- Works across all document sections
+- Safe apply (prevents duplicate application)
+- Undo system for layout restoration
+- Live sync with GitHub-hosted layouts
+
+Author:
+Bee Isrg Rajan
+
+Repository:
+https://github.com/isrgrajan/ab-layout
+*/
+
 Office.onReady(() => {
   loadLayouts();
 });
