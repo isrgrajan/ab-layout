@@ -1,3 +1,23 @@
+<!--
+AB Layout (Advocate Benefit Layout)
+Version: 1.0
+
+Description:
+Microsoft Word Office JS Add-in manifest file.
+Defines the add-in identity, permissions, and entry point.
+
+Purpose:
+- Registers AB Layout inside MS Word
+- Loads task pane UI from GitHub Pages
+- Enables document read/write access
+
+Author:
+Bee Isrg Rajan
+
+Repository:
+https://github.com/isrgrajan/ab-layout
+-->
+
 <?xml version="1.0" encoding="UTF-8"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
            xsi:type="TaskPaneApp"
