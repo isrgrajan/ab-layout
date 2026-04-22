@@ -5,18 +5,8 @@ Version: 1.0.0
 Description:
 Production-ready layout engine for Microsoft Word Add-in.
 
-Supports:
-- Preset-based layouts
-- Unit conversion (inch/cm)
-- Multi-page layouts (affidavit-ready)
-- Safe apply + undo
-- Clean, extensible architecture
-
 Author:
 Bee Isrg Rajan
-
-Repository:
-https://github.com/isrgrajan/ab-layout
 */
 
 Office.onReady(() => {
@@ -38,8 +28,18 @@ function setStatus(message) {
 }
 
 function toPoints(value, unit = "inch") {
+  if (value === undefined || value === null) return 0;
+
+  unit = (unit || "inch").toLowerCase().trim();
+
   if (unit === "cm") return value * 28.3465;
-  return value * 72;
+  return value * 72; // default inch
+}
+
+function resolveUnit(layout) {
+  return (layout?.unit || dataStore?._meta?.unit || "inch")
+    .toLowerCase()
+    .trim();
 }
 
 /* ===== Load Layouts ===== */
@@ -53,7 +53,7 @@ async function loadLayouts() {
 
     dataStore = await response.json();
 
-    populateStates();
+    populateLayouts();
 
     document.getElementById("applyBtn").disabled = false;
 
@@ -64,55 +64,34 @@ async function loadLayouts() {
   }
 }
 
-/* ===== Populate UI ===== */
+/* ===== Populate UI (SIMPLIFIED) ===== */
 
-function populateStates() {
-  const stateSelect = document.getElementById("stateSelect");
-  stateSelect.innerHTML = "";
+function populateLayouts() {
+  const select = document.getElementById("courtSelect");
+  select.innerHTML = "";
 
-  (dataStore.states || []).forEach((state, index) => {
+  (dataStore.layouts || []).forEach((layout, index) => {
     const option = document.createElement("option");
     option.value = index;
-    option.textContent = state.name;
-    stateSelect.appendChild(option);
-  });
-
-  stateSelect.addEventListener("change", populateCourts);
-
-  populateCourts();
-}
-
-function populateCourts() {
-  const stateIndex = document.getElementById("stateSelect").value;
-  const courtSelect = document.getElementById("courtSelect");
-
-  courtSelect.innerHTML = "";
-
-  const courts = dataStore.states[stateIndex]?.courts || [];
-
-  courts.forEach((court, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = court.name;
-    courtSelect.appendChild(option);
+    option.textContent = layout.name;
+    select.appendChild(option);
   });
 }
 
 /* ===== Layout Resolution ===== */
 
 function getSelectedLayout() {
-  const stateIndex = document.getElementById("stateSelect").value;
-  const courtIndex = document.getElementById("courtSelect").value;
+  const index = document.getElementById("courtSelect").value;
 
-  const court = dataStore.states[stateIndex]?.courts[courtIndex];
-  if (!court) return null;
+  const item = dataStore.layouts[index];
+  if (!item) return null;
 
-  const preset = dataStore.presets?.[court.preset];
+  const preset = dataStore.presets?.[item.preset];
   if (!preset) return null;
 
   return {
-    id: court.preset,
-    name: court.name,
+    id: item.id,
+    name: item.name,
     ...preset
   };
 }
@@ -128,6 +107,8 @@ async function applySelected() {
     return;
   }
 
+  const unit = resolveUnit(layout);
+
   try {
     await Word.run(async (context) => {
       const sections = context.document.sections;
@@ -137,7 +118,7 @@ async function applySelected() {
 
       if (!sections.items.length) return;
 
-      /* Save previous layout */
+      /* Save previous */
       const first = sections.items[0].pageSetup;
 
       previousLayout = {
@@ -149,12 +130,9 @@ async function applySelected() {
         right: first.rightMargin
       };
 
-      const unit = layout.unit || dataStore._meta?.unit || "inch";
-
       sections.items.forEach((section, index) => {
         let margins = layout.margins;
 
-        /* Multi-page handling */
         if (layout.multiPage) {
           margins = index === 0 ? layout.firstPage : layout.otherPages;
         }
