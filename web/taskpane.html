@@ -1,20 +1,23 @@
 <!--
 AB Layout (Advocate Benefit Layout)
-Version: 1.0
+Version: 1.0.0
 
 Description:
-Refined UI for Word task pane.
-Focused on clarity, accessibility, and professional legal-tool feel.
+Production-ready UI for Microsoft Word task pane.
+Provides court selection and layout actions.
 
 Author:
 Bee Isrg Rajan
+
+Repository:
+https://github.com/isrgrajan/ab-layout
 -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AB Layout</title>
 
   <!-- Office JS -->
@@ -41,13 +44,13 @@ Bee Isrg Rajan
   <!-- Main Content -->
   <main>
 
-    <!-- State -->
+    <!-- State Selection -->
     <section class="section">
       <label for="stateSelect">State</label>
       <select id="stateSelect" aria-label="Select State"></select>
     </section>
 
-    <!-- Court -->
+    <!-- Court Selection -->
     <section class="section">
       <label for="courtSelect">Court</label>
       <select id="courtSelect" aria-label="Select Court"></select>
@@ -56,11 +59,11 @@ Bee Isrg Rajan
     <!-- Actions -->
     <section class="actions">
       <button id="applyBtn" onclick="applySelected()" disabled>
-        ✅ Apply Layout
+        Apply Layout
       </button>
 
       <button id="undoBtn" class="secondary" onclick="undoLayout()">
-        ↩ Undo
+        Undo
       </button>
     </section>
 
@@ -73,8 +76,8 @@ Bee Isrg Rajan
 
   <!-- Footer -->
   <footer class="footer">
-    <span>v1.0</span>
-    <span>•</span>
+    <span>v1.0.0</span>
+    <span> • </span>
     <span>AB Layout</span>
   </footer>
 
