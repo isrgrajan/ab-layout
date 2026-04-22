@@ -3,7 +3,7 @@
            xsi:type="TaskPaneApp"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-  <Id>ab-layout-isrgrajan-001</Id>
+  <Id>ab-layout-isrgrajan-v1</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>AB Layout</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
@@ -11,6 +11,7 @@
   <DisplayName DefaultValue="AB Layout"/>
   <Description DefaultValue="Advocate Benefit Layout for Indian Courts"/>
 
+  <!-- Optional icon (safe even if missing) -->
   <IconUrl DefaultValue="https://isrgrajan.github.io/ab-layout/assets/icon-32.png"/>
 
   <Hosts>
