@@ -1,1 +1,30 @@
+body {
+  font-family: Segoe UI, Arial;
+  padding: 12px;
+}
 
+h2 {
+  margin-bottom: 10px;
+}
+
+select, button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+button {
+  background: #0f6cbd;
+  color: white;
+  border: none;
+}
+
+button:hover {
+  background: #094a8f;
+}
+
+#status {
+  margin-top: 10px;
+  font-size: 13px;
+}
