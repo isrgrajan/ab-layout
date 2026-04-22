@@ -31,8 +31,8 @@ https://github.com/isrgrajan/ab-layout
   <DisplayName DefaultValue="AB Layout"/>
   <Description DefaultValue="Advocate Benefit Layout for Indian Courts"/>
 
-  <!-- Optional icon (safe even if missing) -->
-  <IconUrl DefaultValue="https://isrgrajan.github.io/ab-layout/assets/icon-32.png"/>
+<IconUrl DefaultValue="https://isrgrajan.github.io/ab-layout/assets/icon-32.png"/>
+<HighResolutionIconUrl DefaultValue="https://isrgrajan.github.io/ab-layout/assets/icon-32.png"/>
 
   <Hosts>
     <Host Name="Document"/>
