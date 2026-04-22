@@ -1,22 +1,16 @@
 /*
 AB Layout (Advocate Benefit Layout)
-Version: 1.0
+Version: 1.0.0
 
 Description:
-Core logic file for AB Layout Word Add-in.
+Production-ready layout engine for Microsoft Word Add-in.
 
-Purpose:
-- Fetch layouts from GitHub (layouts.json)
-- Populate UI (State → Court)
-- Apply selected layout to entire document
-- Store previous layout for undo functionality
-- Handle errors and status updates
-
-Key Features:
-- Works across all document sections
-- Safe apply (prevents duplicate application)
-- Undo system for layout restoration
-- Live sync with GitHub-hosted layouts
+Supports:
+- Preset-based layouts
+- Unit conversion (inch/cm)
+- Multi-page layouts (affidavit-ready)
+- Safe apply + undo
+- Clean, extensible architecture
 
 Author:
 Bee Isrg Rajan
@@ -30,144 +24,193 @@ Office.onReady(() => {
 });
 
 const LAYOUTS_URL =
-"https://isrgrajan.github.io/ab-layout/layouts/layouts.json?v=1";
+  "https://isrgrajan.github.io/ab-layout/layouts/layouts.json?v=1.0.0";
 
-let states = [];
+let dataStore = {};
 let currentLayout = null;
 let previousLayout = null;
 
-function setStatus(msg) {
-  document.getElementById("status").innerText = msg;
+/* ===== Utils ===== */
+
+function setStatus(message) {
+  const el = document.getElementById("status");
+  if (el) el.innerText = message;
 }
+
+function toPoints(value, unit = "inch") {
+  if (unit === "cm") return value * 28.3465;
+  return value * 72;
+}
+
+/* ===== Load Layouts ===== */
 
 async function loadLayouts() {
   try {
     setStatus("Loading layouts...");
 
-    const res = await fetch(LAYOUTS_URL);
-    const data = await res.json();
+    const response = await fetch(LAYOUTS_URL);
+    if (!response.ok) throw new Error("Failed to fetch layouts");
 
-    states = data.states || [];
+    dataStore = await response.json();
 
-    const stateSelect = document.getElementById("stateSelect");
-    stateSelect.innerHTML = "";
+    populateStates();
 
-    states.forEach((s, i) => {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = s.name;
-      stateSelect.appendChild(opt);
-    });
+    document.getElementById("applyBtn").disabled = false;
 
-    stateSelect.onchange = loadCourts;
-
-    loadCourts();
-    setStatus("Ready ✅");
-
-  } catch (e) {
-    console.error(e);
-    setStatus("❌ Failed to load layouts");
+    setStatus("Ready");
+  } catch (error) {
+    console.error(error);
+    setStatus("Failed to load layouts");
   }
 }
 
-function loadCourts() {
+/* ===== Populate UI ===== */
+
+function populateStates() {
+  const stateSelect = document.getElementById("stateSelect");
+  stateSelect.innerHTML = "";
+
+  (dataStore.states || []).forEach((state, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = state.name;
+    stateSelect.appendChild(option);
+  });
+
+  stateSelect.addEventListener("change", populateCourts);
+
+  populateCourts();
+}
+
+function populateCourts() {
   const stateIndex = document.getElementById("stateSelect").value;
   const courtSelect = document.getElementById("courtSelect");
 
   courtSelect.innerHTML = "";
 
-  if (!states[stateIndex]) return;
+  const courts = dataStore.states[stateIndex]?.courts || [];
 
-  const courts = states[stateIndex].courts || [];
-
-  courts.forEach((c, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = c.name;
-    courtSelect.appendChild(opt);
+  courts.forEach((court, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = court.name;
+    courtSelect.appendChild(option);
   });
 }
 
-async function applySelected() {
+/* ===== Layout Resolution ===== */
+
+function getSelectedLayout() {
   const stateIndex = document.getElementById("stateSelect").value;
   const courtIndex = document.getElementById("courtSelect").value;
 
-  if (!states[stateIndex]) return;
+  const court = dataStore.states[stateIndex]?.courts[courtIndex];
+  if (!court) return null;
 
-  const layout = states[stateIndex].courts[courtIndex];
+  const preset = dataStore.presets?.[court.preset];
+  if (!preset) return null;
 
+  return {
+    id: court.preset,
+    name: court.name,
+    ...preset
+  };
+}
+
+/* ===== Apply Layout ===== */
+
+async function applySelected() {
+  const layout = getSelectedLayout();
   if (!layout) return;
 
   if (currentLayout && currentLayout.id === layout.id) {
-    setStatus("Already applied ✔");
+    setStatus("Already applied");
     return;
   }
 
-  await Word.run(async (context) => {
+  try {
+    await Word.run(async (context) => {
+      const sections = context.document.sections;
+      sections.load("items/pageSetup");
 
-    const sections = context.document.sections;
-    sections.load("items/pageSetup");
+      await context.sync();
 
-    await context.sync();
+      if (!sections.items.length) return;
 
-    if (sections.items.length === 0) return;
+      /* Save previous layout */
+      const first = sections.items[0].pageSetup;
 
-    const first = sections.items[0].pageSetup;
+      previousLayout = {
+        width: first.pageWidth,
+        height: first.pageHeight,
+        top: first.topMargin,
+        bottom: first.bottomMargin,
+        left: first.leftMargin,
+        right: first.rightMargin
+      };
 
-    previousLayout = {
-      width: first.pageWidth / 72,
-      height: first.pageHeight / 72,
-      margins: {
-        top: first.topMargin / 72,
-        bottom: first.bottomMargin / 72,
-        left: first.leftMargin / 72,
-        right: first.rightMargin / 72
-      }
-    };
+      const unit = layout.unit || dataStore._meta?.unit || "inch";
 
-    sections.items.forEach(sec => {
-      sec.pageSetup.pageWidth = layout.width * 72;
-      sec.pageSetup.pageHeight = layout.height * 72;
+      sections.items.forEach((section, index) => {
+        let margins = layout.margins;
 
-      sec.pageSetup.topMargin = layout.margins.top * 72;
-      sec.pageSetup.bottomMargin = layout.margins.bottom * 72;
-      sec.pageSetup.leftMargin = layout.margins.left * 72;
-      sec.pageSetup.rightMargin = layout.margins.right * 72;
+        /* Multi-page handling */
+        if (layout.multiPage) {
+          margins = index === 0 ? layout.firstPage : layout.otherPages;
+        }
+
+        section.pageSetup.pageWidth = toPoints(layout.width, unit);
+        section.pageSetup.pageHeight = toPoints(layout.height, unit);
+
+        section.pageSetup.topMargin = toPoints(margins.top, unit);
+        section.pageSetup.bottomMargin = toPoints(margins.bottom, unit);
+        section.pageSetup.leftMargin = toPoints(margins.left, unit);
+        section.pageSetup.rightMargin = toPoints(margins.right, unit);
+      });
+
+      await context.sync();
     });
 
-    await context.sync();
-  });
-
-  currentLayout = layout;
-  setStatus("✅ Applied: " + layout.name);
+    currentLayout = layout;
+    setStatus("Applied: " + layout.name);
+  } catch (error) {
+    console.error(error);
+    setStatus("Failed to apply layout");
+  }
 }
+
+/* ===== Undo Layout ===== */
 
 async function undoLayout() {
   if (!previousLayout) {
-    setStatus("⚠ No previous layout");
+    setStatus("No previous layout");
     return;
   }
 
-  await Word.run(async (context) => {
+  try {
+    await Word.run(async (context) => {
+      const sections = context.document.sections;
+      sections.load("items");
 
-    const sections = context.document.sections;
-    sections.load("items");
+      await context.sync();
 
-    await context.sync();
+      sections.items.forEach((section) => {
+        section.pageSetup.pageWidth = previousLayout.width;
+        section.pageSetup.pageHeight = previousLayout.height;
 
-    sections.items.forEach(sec => {
-      sec.pageSetup.pageWidth = previousLayout.width * 72;
-      sec.pageSetup.pageHeight = previousLayout.height * 72;
+        section.pageSetup.topMargin = previousLayout.top;
+        section.pageSetup.bottomMargin = previousLayout.bottom;
+        section.pageSetup.leftMargin = previousLayout.left;
+        section.pageSetup.rightMargin = previousLayout.right;
+      });
 
-      sec.pageSetup.topMargin = previousLayout.margins.top * 72;
-      sec.pageSetup.bottomMargin = previousLayout.margins.bottom * 72;
-      sec.pageSetup.leftMargin = previousLayout.margins.left * 72;
-      sec.pageSetup.rightMargin = previousLayout.margins.right * 72;
+      await context.sync();
     });
 
-    await context.sync();
-  });
-
-  currentLayout = null;
-  setStatus("↩ Layout restored");
+    currentLayout = null;
+    setStatus("Layout restored");
+  } catch (error) {
+    console.error(error);
+    setStatus("Undo failed");
+  }
 }
