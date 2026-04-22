@@ -1,42 +1,61 @@
 /*
 AB Layout (Advocate Benefit Layout)
-Version: 1.0.0
+Version: 1.1.0
 
 Description:
-Production-grade styling for Microsoft Word task pane UI.
-Designed for clarity, accessibility, and a professional legal-tool feel.
+Microsoft Word native-like UI with auto dark/light mode support
 
 Author:
 Bee Isrg Rajan
-
-Repository:
-https://github.com/isrgrajan/ab-layout
 */
 
-/* ===== Reset / Base ===== */
-*,
-*::before,
-*::after {
+/* ===== Root Theme (Auto Detect) ===== */
+
+:root {
+  --bg: #ffffff;
+  --text: #1f1f1f;
+  --muted: #6b6b6b;
+  --border: #e5e5e5;
+  --primary: #0f6cbd;
+  --primary-hover: #094a8f;
+  --secondary: #f3f3f3;
+  --secondary-hover: #e0e0e0;
+}
+
+/* Dark Mode Auto */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f1f1f;
+    --text: #f5f5f5;
+    --muted: #b3b3b3;
+    --border: #333333;
+    --primary: #4cc2ff;
+    --primary-hover: #2aa3e0;
+    --secondary: #2b2b2b;
+    --secondary-hover: #3a3a3a;
+  }
+}
+
+/* ===== Base ===== */
+
+* {
   box-sizing: border-box;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-}
-
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #ffffff;
-  color: #1f1f1f;
+  margin: 0;
   padding: 12px;
-  overflow-y: auto;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 /* ===== Header ===== */
+
 .header {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .title-row {
@@ -48,141 +67,135 @@ body {
 
 .icon {
   font-size: 18px;
-  line-height: 1;
 }
 
 h1 {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   margin: 0;
 }
 
 .subtitle {
   font-size: 12px;
-  color: #6b6b6b;
-  margin-top: 2px;
+  color: var(--muted);
 }
 
 /* ===== Divider ===== */
+
 hr {
   border: none;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--border);
   margin: 10px 0;
 }
 
-/* ===== Sections ===== */
+/* ===== Section ===== */
+
 .section {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 label {
-  display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: #333333;
+  color: var(--muted);
+  display: block;
   margin-bottom: 4px;
 }
 
-/* ===== Select (Dropdown) ===== */
+/* ===== Dropdown ===== */
+
 select {
   width: 100%;
   padding: 8px;
   font-size: 13px;
-  border-radius: 4px;
-  border: 1px solid #c8c8c8;
-  background-color: #ffffff;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  transition: all 0.15s ease;
 }
 
 select:hover {
-  border-color: #999999;
+  border-color: var(--primary);
 }
 
 select:focus {
   outline: none;
-  border-color: #0f6cbd;
-  box-shadow: 0 0 0 2px rgba(15, 108, 189, 0.2);
-}
-
-/* ===== Actions ===== */
-.actions {
-  margin-top: 10px;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(15,108,189,0.2);
 }
 
 /* ===== Buttons ===== */
+
 button {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   border: none;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  user-select: none;
-  transition: background-color 0.2s ease, transform 0.05s ease;
+  transition: all 0.15s ease;
 }
 
-/* Primary Button */
+/* Primary */
 button:not(.secondary) {
-  background-color: #0f6cbd;
-  color: #ffffff;
+  background: var(--primary);
+  color: #fff;
 }
 
 button:not(.secondary):hover:not(:disabled) {
-  background-color: #094a8f;
+  background: var(--primary-hover);
 }
 
-/* Secondary Button */
+/* Secondary */
 button.secondary {
-  background-color: #f3f3f3;
-  color: #333333;
+  background: var(--secondary);
+  color: var(--text);
 }
 
 button.secondary:hover {
-  background-color: #e0e0e0;
+  background: var(--secondary-hover);
 }
 
-/* Disabled State */
+/* Disabled */
 button:disabled {
-  background-color: #cccccc;
-  color: #666666;
+  background: #888;
+  color: #ccc;
   cursor: not-allowed;
 }
 
 /* Click feedback */
 button:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 /* ===== Status ===== */
+
 .status {
-  margin-top: 12px;
-  font-size: 13px;
-  color: #444444;
-  min-height: 18px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  min-height: 16px;
 }
 
 /* ===== Footer ===== */
+
 .footer {
-  margin-top: 18px;
+  margin-top: 16px;
   text-align: center;
   font-size: 11px;
-  color: #888888;
+  color: var(--muted);
 }
 
-/* ===== Accessibility ===== */
-button:focus,
-select:focus {
-  outline: none;
-}
+/* ===== Scrollbar (Subtle like Word) ===== */
 
-/* ===== Scroll Safety ===== */
-body::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 6px;
 }
 
-body::-webkit-scrollbar-thumb {
-  background: #cccccc;
+::-webkit-scrollbar-thumb {
+  background: var(--border);
   border-radius: 3px;
 }
