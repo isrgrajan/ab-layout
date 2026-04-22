@@ -3,17 +3,13 @@ AB Layout (Advocate Benefit Layout)
 Version: 1.0
 
 Description:
-Styling file for the task pane UI.
-
-Purpose:
-- Defines layout and visual structure
-- Ensures clean and professional appearance
-- Optimized for readability inside Word sidebar
+Professional styling for Word task pane UI.
 
 Design Goals:
-- Minimal and distraction-free UI
-- Fast rendering
-- Consistent spacing and typography
+- Clean and distraction-free
+- Consistent spacing and hierarchy
+- Native-like Word sidebar experience
+- Lightweight and fast
 
 Author:
 Bee Isrg Rajan
@@ -22,33 +18,159 @@ Repository:
 https://github.com/isrgrajan/ab-layout
 */
 
+/* ===== Base ===== */
 body {
-  font-family: Segoe UI, Arial;
+  font-family: "Segoe UI", Arial, sans-serif;
   padding: 12px;
+  margin: 0;
+  background: #ffffff;
+  color: #1f1f1f;
 }
 
-h2 {
+/* ===== Header ===== */
+.header {
+  text-align: center;
   margin-bottom: 10px;
 }
 
-select, button {
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.icon {
+  font-size: 18px;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #6b6b6b;
+  margin-top: 2px;
+}
+
+/* ===== Divider ===== */
+hr {
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 10px 0;
+}
+
+/* ===== Sections ===== */
+.section {
+  margin-bottom: 14px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+/* ===== Dropdown ===== */
+select {
   width: 100%;
-  margin-top: 8px;
   padding: 8px;
   border-radius: 4px;
+  border: 1px solid #c8c8c8;
+  background: #fff;
+  font-size: 13px;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0f6cbd;
+  box-shadow: 0 0 0 2px rgba(15,108,189,0.2);
+}
+
+/* ===== Buttons ===== */
+.actions {
+  margin-top: 10px;
 }
 
 button {
-  background: #0f6cbd;
-  color: white;
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 4px;
   border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
 }
 
-button:hover {
+/* Primary Button */
+button:not(.secondary) {
+  background: #0f6cbd;
+  color: #ffffff;
+}
+
+button:not(.secondary):hover:not(:disabled) {
   background: #094a8f;
 }
 
-#status {
-  margin-top: 10px;
+/* Secondary Button */
+button.secondary {
+  background: #f3f3f3;
+  color: #333;
+}
+
+button.secondary:hover {
+  background: #e0e0e0;
+}
+
+/* Disabled */
+button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  color: #666;
+}
+
+/* ===== Status ===== */
+.status {
+  margin-top: 12px;
   font-size: 13px;
+  color: #444;
+  min-height: 18px;
+}
+
+/* ===== Footer ===== */
+.footer {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 11px;
+  color: #888;
+}
+
+/* ===== Micro UX Enhancements ===== */
+
+/* Subtle hover for selects */
+select:hover {
+  border-color: #999;
+}
+
+/* Smooth UI feel */
+* {
+  box-sizing: border-box;
+}
+
+/* Prevent text selection on buttons */
+button {
+  user-select: none;
+}
+
+/* Scroll safety (Word pane can shrink) */
+body {
+  overflow-y: auto;
 }
