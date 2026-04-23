@@ -1,9 +1,9 @@
 <!--
 AB Layout (Advocate Benefit Layout)
-Version: 1.1.0
+Version: 2.0.0
 
 Description:
-Modern, Microsoft Word-like UI with auto theme support.
+Engine-driven UI for Microsoft Word Add-in with dynamic state sync.
 
 Maintainer:
 RatioJuris
@@ -32,7 +32,7 @@ RatioJuris
       <span class="icon">⚖</span>
       <h1>AB Layout</h1>
     </div>
-    <div class="subtitle">Advocate Benefit Layout</div>
+    <div class="subtitle" id="subtitle">Advocate Benefit Layout</div>
   </header>
 
   <hr />
@@ -52,40 +52,99 @@ RatioJuris
         Apply Layout
       </button>
 
-      <button id="undoBtn" class="secondary" onclick="undoLayout()">
+      <button id="undoBtn" class="secondary" onclick="undoLayout()" disabled>
         Undo
       </button>
     </section>
 
     <!-- Status -->
     <section id="status" class="status" aria-live="polite">
-      Initializing...
+      Initializing engine...
     </section>
 
   </main>
 
   <!-- Footer -->
   <footer class="footer">
-    <span id="version">v1.1.0</span>
+    <span id="version">v2.0.0</span>
     <span> • </span>
-    <span>AB Layout</span>
+    <span id="engineState">Engine Ready</span>
   </footer>
 
   <!-- Script -->
   <script src="taskpane.js"></script>
 
-  <!-- Theme Sync with Word -->
+  <!-- UI Intelligence Layer -->
   <script>
+    const CONFIG = {
+      metaUrl: "https://ratiojuris.github.io/ab-layout/layouts/layouts.json"
+    };
+
+    const UI = {
+      version: document.getElementById("version"),
+      subtitle: document.getElementById("subtitle"),
+      status: document.getElementById("status"),
+      applyBtn: document.getElementById("applyBtn"),
+      undoBtn: document.getElementById("undoBtn"),
+      engineState: document.getElementById("engineState")
+    };
+
+    /* ===== Dynamic Meta Sync ===== */
+
+    fetch(CONFIG.metaUrl)
+      .then(res => res.json())
+      .then(data => {
+        const meta = data._meta || {};
+
+        if (meta.version) {
+          UI.version.innerText = "v" + meta.version;
+        }
+
+        if (meta.description) {
+          UI.subtitle.innerText = meta.description;
+        }
+      })
+      .catch(() => {
+        // silent fallback
+      });
+
+    /* ===== UI Hooks (Engine Integration) ===== */
+
+    // Called from engine
+    function uiSetStatus(message, type = "info") {
+      UI.status.innerText = message;
+
+      UI.status.style.color =
+        type === "error" ? "#dc2626" :
+        type === "success" ? "#16a34a" :
+        "#6b7280";
+    }
+
+    function uiSetEngineState(state) {
+      UI.engineState.innerText = state;
+    }
+
+    function uiEnableApply(enable) {
+      UI.applyBtn.disabled = !enable;
+    }
+
+    function uiEnableUndo(enable) {
+      UI.undoBtn.disabled = !enable;
+    }
+
+    /* ===== Theme Sync with Word ===== */
+
     Office.onReady(() => {
       try {
-        const officeTheme = Office.context.officeTheme;
+        const theme = Office.context.officeTheme;
 
-        if (officeTheme && officeTheme.bodyBackgroundColor) {
-          document.body.style.backgroundColor = officeTheme.bodyBackgroundColor;
-          document.body.style.color = officeTheme.bodyForegroundColor;
+        if (theme?.bodyBackgroundColor) {
+          document.body.style.backgroundColor = theme.bodyBackgroundColor;
+          document.body.style.color = theme.bodyForegroundColor;
         }
+
       } catch (e) {
-        // fallback to CSS auto theme
+        // fallback to CSS
       }
     });
   </script>
