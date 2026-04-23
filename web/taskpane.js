@@ -1,9 +1,10 @@
 /*
-AB Layout (Advocate Benefit Layout)
-Version: 2.0.0
+File: taskpane.js
+Path: /web/taskpane.js
+Version: 3.1.0
 
 Description:
-Validated, points-based layout engine for Microsoft Word Add-in.
+Validated layout engine with UI integration and state control
 
 Maintainer:
 RatioJuris
@@ -17,7 +18,7 @@ let currentLayout = null;
 let previousLayout = null;
 
 const LAYOUTS_URL =
-  "https://ratiojuris.github.io/ab-layout/layouts/layouts.json?v=2.0.0";
+  "https://ratiojuris.github.io/ab-layout/layouts/layouts.json?v=3.1.0";
 
 /* ===== INIT ===== */
 
@@ -26,26 +27,31 @@ Office.onReady((info) => {
     isOfficeReady = true;
     init();
   } else {
-    setStatus("Open inside Microsoft Word");
+    uiSetStatus("Open inside Microsoft Word", "error");
   }
 });
 
 function init() {
+  uiSetEngineState("Loading...");
   loadLayouts();
 }
 
-/* ===== UI ===== */
+/* ===== UI SAFE WRAPPERS ===== */
 
-function setStatus(message) {
-  const el = document.getElementById("status");
-  if (el) el.innerText = message;
+function setStatus(message, type = "info") {
+  if (typeof uiSetStatus === "function") {
+    uiSetStatus(message, type);
+  } else {
+    const el = document.getElementById("status");
+    if (el) el.innerText = message;
+  }
 }
 
 /* ===== DATA LOADING ===== */
 
 async function loadLayouts() {
   try {
-    setStatus("Loading layouts...");
+    setStatus("Loading layouts...", "info");
 
     const res = await fetch(LAYOUTS_URL);
     if (!res.ok) throw new Error("Failed to fetch layouts");
@@ -56,12 +62,15 @@ async function loadLayouts() {
 
     populateLayouts();
 
-    document.getElementById("applyBtn").disabled = false;
+    uiEnableApply(true);
+    uiSetEngineState("Ready");
 
-    setStatus("Ready");
+    setStatus("Ready", "success");
+
   } catch (err) {
     console.error(err);
-    setStatus("Failed to load layouts");
+    setStatus("Failed to load layouts", "error");
+    uiSetEngineState("Error");
   }
 }
 
@@ -105,7 +114,7 @@ function getSelectedLayout() {
   };
 }
 
-/* ===== VALIDATION ENGINE ===== */
+/* ===== VALIDATION ===== */
 
 function validateLayout(layout) {
   if (!layout) return fail("Layout missing");
@@ -118,13 +127,11 @@ function validateLayout(layout) {
     return fail("Page size must be positive");
   }
 
-  const checkMargins = (m) => {
-    if (!m) return false;
-
-    return ["top", "bottom", "left", "right"].every(
+  const checkMargins = (m) =>
+    m &&
+    ["top", "bottom", "left", "right"].every(
       k => isNumber(m[k]) && m[k] >= 0
     );
-  };
 
   if (layout.multiPage) {
     if (!checkMargins(layout.firstPage) || !checkMargins(layout.otherPages)) {
@@ -147,11 +154,11 @@ function fail(msg) {
   return { valid: false, error: msg };
 }
 
-/* ===== APPLY ENGINE ===== */
+/* ===== APPLY ===== */
 
 async function applySelected() {
   if (!isOfficeReady) {
-    setStatus("Open inside Microsoft Word");
+    setStatus("Open inside Microsoft Word", "error");
     return;
   }
 
@@ -159,17 +166,19 @@ async function applySelected() {
   if (!layout) return;
 
   if (currentLayout?.id === layout.id) {
-    setStatus("Already applied");
+    setStatus("Already applied", "info");
     return;
   }
 
   const check = validateLayout(layout);
 
   if (!check.valid) {
-    setStatus("Error: " + check.error);
-    console.error(check.error);
+    setStatus("Error: " + check.error, "error");
     return;
   }
+
+  uiSetEngineState("Applying...");
+  setStatus("Applying layout...", "info");
 
   try {
     await Word.run(async (context) => {
@@ -180,7 +189,6 @@ async function applySelected() {
 
       if (!sections.items.length) return;
 
-      /* SAVE STATE */
       const first = sections.items[0].pageSetup;
 
       previousLayout = {
@@ -192,7 +200,6 @@ async function applySelected() {
         right: first.rightMargin
       };
 
-      /* APPLY */
       sections.items.forEach((section, i) => {
         let margins = layout.margins;
 
@@ -215,23 +222,31 @@ async function applySelected() {
     });
 
     currentLayout = layout;
-    setStatus("Applied: " + layout.name);
+
+    uiEnableUndo(true);
+    uiSetEngineState("Active");
+
+    setStatus("Applied: " + layout.name, "success");
 
   } catch (err) {
     console.error(err);
-    setStatus("Failed to apply layout");
+
+    setStatus("Failed to apply layout", "error");
+    uiSetEngineState("Error");
 
     if (previousLayout) undoLayout();
   }
 }
 
-/* ===== UNDO ENGINE ===== */
+/* ===== UNDO ===== */
 
 async function undoLayout() {
   if (!previousLayout) {
-    setStatus("No previous layout");
+    setStatus("No previous layout", "info");
     return;
   }
+
+  uiSetEngineState("Reverting...");
 
   try {
     await Word.run(async (context) => {
@@ -254,10 +269,14 @@ async function undoLayout() {
     });
 
     currentLayout = null;
-    setStatus("Layout restored");
+
+    uiEnableUndo(false);
+    uiSetEngineState("Ready");
+
+    setStatus("Layout restored", "success");
 
   } catch (err) {
     console.error(err);
-    setStatus("Undo failed");
+    setStatus("Undo failed", "error");
   }
 }
