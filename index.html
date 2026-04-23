@@ -1,12 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>AB Layout</title>
+<title>AB Layout – Legal Formatting Engine</title>
+
+<!-- SEO / META -->
+<meta name="description" content="AB Layout is a Microsoft Word Add-in for Indian legal drafting with automated court formatting." />
+<meta name="theme-color" content="#0f6cbd" />
+
+<!-- Open Graph -->
+<meta property="og:title" content="AB Layout" />
+<meta property="og:description" content="Legal formatting engine for advocates." />
+<meta property="og:type" content="website" />
 
 <style>
+
+/* ===== THEME SYSTEM ===== */
+
 :root {
   --bg:#f9fafb;
   --text:#1f2937;
@@ -14,16 +27,30 @@
   --card:#ffffff;
   --border:#e5e7eb;
   --primary:#0f6cbd;
+  --link:#0f6cbd;
 }
 
+/* DARK */
+[data-theme="dark"] {
+  --bg:#1f1f1f;
+  --text:#f5f5f5;
+  --muted:#b3b3b3;
+  --card:#2b2b2b;
+  --border:#333;
+  --primary:#4cc2ff;
+  --link:#4cc2ff;
+}
+
+/* AUTO MODE */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --bg:#1f1f1f;
     --text:#f5f5f5;
     --muted:#b3b3b3;
     --card:#2b2b2b;
     --border:#333;
     --primary:#4cc2ff;
+    --link:#4cc2ff;
   }
 }
 
@@ -32,7 +59,18 @@ body {
   font-family:"Segoe UI",system-ui;
   background:var(--bg);
   color:var(--text);
+  transition: all 0.2s ease;
 }
+
+a {
+  color:var(--link);
+  text-decoration:none;
+}
+a:hover {
+  text-decoration:underline;
+}
+
+/* ===== LAYOUT ===== */
 
 .container {
   max-width:1000px;
@@ -52,8 +90,9 @@ body {
 
 .hero p {
   color:var(--muted);
-  font-size:16px;
 }
+
+/* ===== BUTTONS ===== */
 
 .btn {
   padding:12px 18px;
@@ -66,24 +105,27 @@ body {
 
 .primary {
   background:var(--primary);
-  color:white;
+  color:#fff;
 }
 
 .secondary {
   background:var(--card);
   border:1px solid var(--border);
-  color:var(--text);
 }
 
-.stats {
-  margin-top:10px;
-  font-size:13px;
-  color:var(--muted);
+/* ===== THEME TOGGLE ===== */
+
+.toggle {
+  position:absolute;
+  top:20px;
+  right:20px;
+  cursor:pointer;
+  font-size:14px;
 }
 
-.section {
-  margin-top:50px;
-}
+/* ===== CONTENT ===== */
+
+.section { margin-top:50px; }
 
 .card {
   background:var(--card);
@@ -105,80 +147,64 @@ body {
   color:var(--muted);
   font-size:13px;
 }
+
 </style>
 </head>
 
 <body>
 
+<div class="toggle" onclick="toggleTheme()">🌗 Theme</div>
+
 <div class="container">
 
-<!-- HERO -->
 <section class="hero">
   <h1>⚖ AB Layout</h1>
-  <p id="desc">Loading description...</p>
+  <p id="desc">Loading...</p>
 
-  <a class="btn primary" href="manifest.xml">⬇ Install Add-in</a>
-  <a class="btn secondary" href="https://github.com/RatioJuris/ab-layout">GitHub</a>
+  <!-- FIXED: FORCE DOWNLOAD -->
+  <a class="btn primary" href="manifest.xml" download>
+    ⬇ Install Add-in
+  </a>
 
-  <div class="stats" id="stats">Loading stats...</div>
-  <div class="stats" id="version">Loading version...</div>
+  <a class="btn secondary" href="https://github.com/RatioJuris/ab-layout">
+    GitHub
+  </a>
+
+  <div id="stats"></div>
+  <div id="version"></div>
 </section>
 
-<!-- FEATURES -->
 <section class="section">
-  <h2>🚀 Features</h2>
-  <div class="card">
-    <ul>
-      <li>⚡ One-click legal formatting</li>
-      <li>🏛 Court-specific layouts</li>
-      <li>🔁 Undo support</li>
-      <li>🌐 Live updates</li>
-      <li>📑 Works on large documents</li>
-    </ul>
-  </div>
-</section>
-
-<!-- LAYOUTS -->
-<section class="section">
-  <h2>📄 Supported Layouts</h2>
+  <h2>📄 Layouts</h2>
   <div class="grid" id="layouts"></div>
 </section>
 
-<!-- INSTALL -->
-<section class="section">
-  <h2>📥 Installation</h2>
-  <div class="card">
-    <ol>
-      <li>Download manifest.xml</li>
-      <li>Open Microsoft Word</li>
-      <li>Insert → Add-ins → Upload</li>
-      <li>Select file</li>
-    </ol>
-  </div>
-</section>
-
-<!-- PRIVACY -->
-<section class="section">
-  <h2>🔒 Privacy</h2>
-  <div class="card">
-    No personal data is collected.  
-    <br/><br/>
-    <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
-      GitHub Privacy Policy
-    </a>
-  </div>
-</section>
-
-<!-- FOOTER -->
 <div class="footer">
   © <span id="year"></span> AB Layout  
-  <br/>
-  <a href="https://github.com/RatioJuris">RatioJuris</a>
 </div>
 
 </div>
 
 <script>
+
+/* ===== THEME SYSTEM ===== */
+
+function toggleTheme(){
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+
+// Load saved theme
+const saved = localStorage.getItem("theme");
+if(saved){
+  document.documentElement.setAttribute("data-theme", saved);
+}
+
+/* ===== DATA ===== */
+
 const CONFIG = {
   repo:"RatioJuris/ab-layout",
   layouts:"https://ratiojuris.github.io/ab-layout/layouts/layouts.json"
@@ -186,30 +212,33 @@ const CONFIG = {
 
 document.getElementById("year").innerText=new Date().getFullYear();
 
-// META + LAYOUTS
+/* ===== META + LAYOUTS ===== */
+
 fetch(CONFIG.layouts)
 .then(r=>r.json())
 .then(data=>{
-  document.getElementById("version").innerText="Version: "+(data._meta?.version||"1.0.0");
-  document.getElementById("desc").innerText=data._meta?.description||"Legal formatting system";
+  document.getElementById("version").innerText="Version: "+data._meta.version;
+  document.getElementById("desc").innerText=data._meta.description;
 
   const container=document.getElementById("layouts");
 
-  (data.layouts||[]).forEach(l=>{
-    const div=document.createElement("div");
-    div.className="card";
-    div.innerHTML=`<strong>${l.name}</strong><br/><span class="small">${l.type}</span>`;
-    container.appendChild(div);
+  data.layouts.forEach(l=>{
+    const el=document.createElement("div");
+    el.className="card";
+    el.innerHTML=`<strong>${l.name}</strong><br/><small>${l.type}</small>`;
+    container.appendChild(el);
   });
 });
 
-// GITHUB STATS
+/* ===== GITHUB ===== */
+
 fetch(`https://api.github.com/repos/${CONFIG.repo}`)
 .then(r=>r.json())
 .then(repo=>{
   document.getElementById("stats").innerText =
-    `⭐ ${repo.stargazers_count} • 🍴 ${repo.forks_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
+    `⭐ ${repo.stargazers_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
 });
+
 </script>
 
 </body>
