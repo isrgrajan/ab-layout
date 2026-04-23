@@ -6,10 +6,10 @@ Description:
 Dynamic landing page for AB Layout (GitHub Pages).
 Includes features, installation, dynamic version loading, privacy, contact, and copyright.
 
-Author: Bee Isrg Rajan
+Maintainer: Independent (Pseudonymous)
 
 Repository:
-https://github.com/isrgrajan/ab-layout
+https://github.com/RatioJuris/ab-layout
 -->
 
 <!DOCTYPE html>
@@ -133,11 +133,11 @@ https://github.com/isrgrajan/ab-layout
       <p class="subtitle">Advocate Benefit Layout for Microsoft Word</p>
 
       <div class="cta">
-        <a class="btn btn-primary" href="https://isrgrajan.github.io/ab-layout/manifest.xml">
+        <a class="btn btn-primary" href="https://ratiojuris.github.io/ab-layout/manifest.xml">
           ⬇ Download Add-in
         </a>
 
-        <a class="btn btn-secondary" href="https://github.com/isrgrajan/ab-layout" target="_blank">
+        <a class="btn btn-secondary" href="https://github.com/RatioJuris/ab-layout" target="_blank">
           ⭐ View on GitHub
         </a>
       </div>
@@ -199,19 +199,19 @@ https://github.com/isrgrajan/ab-layout
     <section>
       <h2>📬 Contact</h2>
       <div class="card">
-        Maintained by <strong>Bee Isrg Rajan</strong><br/>
+        Maintained as an independent system initiative<br/>
         GitHub:
-        <a href="https://github.com/isrgrajan" target="_blank">
-          https://github.com/isrgrajan
+        <a href="https://github.com/RatioJuris" target="_blank">
+          https://github.com/RatioJuris
         </a>
       </div>
     </section>
 
     <!-- Footer -->
     <footer>
-      <p>© <span id="year"></span> Bee Isrg Rajan</p>
+      <p>© <span id="year"></span> AB Layout</p>
       <p>
-        <a href="https://github.com/isrgrajan/ab-layout" target="_blank">Repository</a>
+        <a href="https://github.com/RatioJuris/ab-layout" target="_blank">Repository</a>
       </p>
     </footer>
 
@@ -223,7 +223,7 @@ https://github.com/isrgrajan/ab-layout
     document.getElementById("year").innerText = new Date().getFullYear();
 
     // Dynamic version fetch
-    fetch("https://isrgrajan.github.io/ab-layout/layouts/layouts.json")
+    fetch("https://ratiojuris.github.io/ab-layout/layouts/layouts.json")
       .then(res => res.json())
       .then(data => {
         const version = data._meta?.version || "1.0.0";
