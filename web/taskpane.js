@@ -1,16 +1,16 @@
 /*
 File: taskpane.js
 Path: /web/taskpane.js
-Version: 3.1.0
+Version: 3.1.0 (FINAL)
 
 Description:
-Validated layout engine with UI integration and state control
+Production-grade layout engine with ribbon integration, validation, and UI state control
 
 Maintainer:
 RatioJuris
 */
 
-/* ===== STATE ===== */
+/* ===== GLOBAL STATE ===== */
 
 let isOfficeReady = false;
 let dataStore = {};
@@ -22,13 +22,18 @@ const LAYOUTS_URL =
 
 /* ===== INIT ===== */
 
-Office.onReady((info) => {
+Office.onReady(async (info) => {
+
   if (info.host === Office.HostType.Word) {
     isOfficeReady = true;
+
+    registerRibbonActions();   // 🔥 critical
     init();
+
   } else {
     uiSetStatus("Open inside Microsoft Word", "error");
   }
+
 });
 
 function init() {
@@ -36,7 +41,7 @@ function init() {
   loadLayouts();
 }
 
-/* ===== UI SAFE WRAPPERS ===== */
+/* ===== UI SAFE WRAPPER ===== */
 
 function setStatus(message, type = "info") {
   if (typeof uiSetStatus === "function") {
@@ -47,14 +52,14 @@ function setStatus(message, type = "info") {
   }
 }
 
-/* ===== DATA LOADING ===== */
+/* ===== LOAD LAYOUTS ===== */
 
 async function loadLayouts() {
   try {
     setStatus("Loading layouts...", "info");
 
     const res = await fetch(LAYOUTS_URL);
-    if (!res.ok) throw new Error("Failed to fetch layouts");
+    if (!res.ok) throw new Error("Fetch failed");
 
     dataStore = await res.json();
 
@@ -74,57 +79,20 @@ async function loadLayouts() {
   }
 }
 
-/* ===== SCHEMA VALIDATION ===== */
+/* ===== VALIDATION ===== */
 
 function validateSchema(store) {
   if (!store.layouts || !store.presets) {
-    throw new Error("Invalid layout schema");
+    throw new Error("Invalid schema");
   }
 }
 
-/* ===== UI POPULATION ===== */
-
-function populateLayouts() {
-  const select = document.getElementById("courtSelect");
-  select.innerHTML = "";
-
-  dataStore.layouts.forEach((layout, i) => {
-    const option = document.createElement("option");
-    option.value = i;
-    option.textContent = layout.name;
-    select.appendChild(option);
-  });
-}
-
-/* ===== RESOLUTION ===== */
-
-function getSelectedLayout() {
-  const index = document.getElementById("courtSelect").value;
-
-  const item = dataStore.layouts[index];
-  if (!item) return null;
-
-  const preset = dataStore.presets[item.preset];
-  if (!preset) return null;
-
-  return {
-    id: item.id,
-    name: item.name,
-    ...preset
-  };
-}
-
-/* ===== VALIDATION ===== */
-
 function validateLayout(layout) {
+
   if (!layout) return fail("Layout missing");
 
   if (!isNumber(layout.width) || !isNumber(layout.height)) {
     return fail("Invalid page size");
-  }
-
-  if (layout.width <= 0 || layout.height <= 0) {
-    return fail("Page size must be positive");
   }
 
   const checkMargins = (m) =>
@@ -154,9 +122,47 @@ function fail(msg) {
   return { valid: false, error: msg };
 }
 
-/* ===== APPLY ===== */
+/* ===== UI ===== */
+
+function populateLayouts() {
+  const select = document.getElementById("courtSelect");
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  dataStore.layouts.forEach((layout, i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = layout.name;
+    select.appendChild(option);
+  });
+}
+
+/* ===== RESOLUTION ===== */
+
+function getSelectedLayout() {
+  const select = document.getElementById("courtSelect");
+  if (!select) return null;
+
+  const index = select.value;
+
+  const item = dataStore.layouts[index];
+  if (!item) return null;
+
+  const preset = dataStore.presets[item.preset];
+  if (!preset) return null;
+
+  return {
+    id: item.id,
+    name: item.name,
+    ...preset
+  };
+}
+
+/* ===== APPLY CORE ===== */
 
 async function applySelected() {
+
   if (!isOfficeReady) {
     setStatus("Open inside Microsoft Word", "error");
     return;
@@ -171,9 +177,8 @@ async function applySelected() {
   }
 
   const check = validateLayout(layout);
-
   if (!check.valid) {
-    setStatus("Error: " + check.error, "error");
+    setStatus(check.error, "error");
     return;
   }
 
@@ -181,7 +186,9 @@ async function applySelected() {
   setStatus("Applying layout...", "info");
 
   try {
+
     await Word.run(async (context) => {
+
       const sections = context.document.sections;
       sections.load("items/pageSetup");
 
@@ -201,6 +208,7 @@ async function applySelected() {
       };
 
       sections.items.forEach((section, i) => {
+
         let margins = layout.margins;
 
         if (layout.multiPage) {
@@ -216,6 +224,7 @@ async function applySelected() {
         section.pageSetup.bottomMargin = margins.bottom;
         section.pageSetup.leftMargin = margins.left;
         section.pageSetup.rightMargin = margins.right;
+
       });
 
       await context.sync();
@@ -229,6 +238,7 @@ async function applySelected() {
     setStatus("Applied: " + layout.name, "success");
 
   } catch (err) {
+
     console.error(err);
 
     setStatus("Failed to apply layout", "error");
@@ -238,9 +248,25 @@ async function applySelected() {
   }
 }
 
+/* ===== APPLY BY ID (RIBBON) ===== */
+
+function applyById(id) {
+
+  if (!dataStore.layouts) return;
+
+  const index = dataStore.layouts.findIndex(l => l.id === id);
+  if (index === -1) return;
+
+  const select = document.getElementById("courtSelect");
+  if (select) select.value = index;
+
+  applySelected();
+}
+
 /* ===== UNDO ===== */
 
 async function undoLayout() {
+
   if (!previousLayout) {
     setStatus("No previous layout", "info");
     return;
@@ -249,13 +275,16 @@ async function undoLayout() {
   uiSetEngineState("Reverting...");
 
   try {
+
     await Word.run(async (context) => {
+
       const sections = context.document.sections;
       sections.load("items");
 
       await context.sync();
 
       sections.items.forEach((section) => {
+
         section.pageSetup.pageWidth = previousLayout.width;
         section.pageSetup.pageHeight = previousLayout.height;
 
@@ -263,6 +292,7 @@ async function undoLayout() {
         section.pageSetup.bottomMargin = previousLayout.bottom;
         section.pageSetup.leftMargin = previousLayout.left;
         section.pageSetup.rightMargin = previousLayout.right;
+
       });
 
       await context.sync();
@@ -279,4 +309,16 @@ async function undoLayout() {
     console.error(err);
     setStatus("Undo failed", "error");
   }
+}
+
+/* ===== RIBBON ACTION REGISTRATION ===== */
+
+function registerRibbonActions() {
+
+  if (!Office.actions) return;
+
+  Office.actions.associate("applyHighCourt", () => applyById("hc_standard"));
+  Office.actions.associate("applyDistrictCourt", () => applyById("district_standard"));
+  Office.actions.associate("applyAffidavit", () => applyById("affidavit"));
+  Office.actions.associate("undoLayout", undoLayout);
 }
