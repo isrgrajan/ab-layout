@@ -1,238 +1,216 @@
-<!--
-AB Layout (Advocate Benefit Layout)
-Version: 1.0.0 
-
-Description:
-Dynamic landing page for AB Layout (GitHub Pages).
-Includes features, installation, dynamic version loading, privacy, contact, and copyright.
-
-Maintainer: Independent (Pseudonymous)
-
-Repository:
-https://github.com/RatioJuris/ab-layout
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AB Layout – Advocate Benefit Layout</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <style>
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      margin: 0;
-      background: #f9fafb;
-      color: #1f2937;
-    }
+<title>AB Layout</title>
 
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-    }
+<style>
+:root {
+  --bg:#f9fafb;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --primary:#0f6cbd;
+}
 
-    header {
-      text-align: center;
-      padding: 40px 20px;
-    }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#1f1f1f;
+    --text:#f5f5f5;
+    --muted:#b3b3b3;
+    --card:#2b2b2b;
+    --border:#333;
+    --primary:#4cc2ff;
+  }
+}
 
-    h1 {
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
+body {
+  margin:0;
+  font-family:"Segoe UI",system-ui;
+  background:var(--bg);
+  color:var(--text);
+}
 
-    .subtitle {
-      font-size: 16px;
-      color: #6b7280;
-    }
+.container {
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+}
 
-    .cta {
-      margin-top: 20px;
-    }
+.hero {
+  text-align:center;
+  padding:60px 20px;
+}
 
-    .btn {
-      display: inline-block;
-      padding: 12px 18px;
-      margin: 6px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-    }
+.hero h1 {
+  font-size:36px;
+  margin-bottom:10px;
+}
 
-    .btn-primary {
-      background: #0f6cbd;
-      color: white;
-    }
+.hero p {
+  color:var(--muted);
+  font-size:16px;
+}
 
-    .btn-primary:hover {
-      background: #094a8f;
-    }
+.btn {
+  padding:12px 18px;
+  border-radius:6px;
+  text-decoration:none;
+  font-weight:600;
+  margin:6px;
+  display:inline-block;
+}
 
-    .btn-secondary {
-      background: #e5e7eb;
-      color: #111827;
-    }
+.primary {
+  background:var(--primary);
+  color:white;
+}
 
-    .btn-secondary:hover {
-      background: #d1d5db;
-    }
+.secondary {
+  background:var(--card);
+  border:1px solid var(--border);
+  color:var(--text);
+}
 
-    section {
-      margin-top: 40px;
-    }
+.stats {
+  margin-top:10px;
+  font-size:13px;
+  color:var(--muted);
+}
 
-    h2 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
+.section {
+  margin-top:50px;
+}
 
-    ul {
-      padding-left: 18px;
-      line-height: 1.6;
-    }
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:16px;
+  border-radius:8px;
+  margin-top:10px;
+}
 
-    .card {
-      background: white;
-      padding: 16px;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      margin-top: 10px;
-    }
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+}
 
-    footer {
-      text-align: center;
-      margin-top: 50px;
-      padding: 20px;
-      font-size: 13px;
-      color: #6b7280;
-    }
-
-    code {
-      background: #f3f4f6;
-      padding: 4px 6px;
-      border-radius: 4px;
-    }
-
-    .small {
-      font-size: 12px;
-      color: #6b7280;
-    }
-  </style>
+.footer {
+  text-align:center;
+  margin-top:60px;
+  color:var(--muted);
+  font-size:13px;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <!-- Header -->
-    <header>
-      <h1>⚖ AB Layout</h1>
-      <p class="subtitle">Advocate Benefit Layout for Microsoft Word</p>
+<!-- HERO -->
+<section class="hero">
+  <h1>⚖ AB Layout</h1>
+  <p id="desc">Loading description...</p>
 
-      <div class="cta">
-        <a class="btn btn-primary" href="https://ratiojuris.github.io/ab-layout/manifest.xml">
-          ⬇ Download Add-in
-        </a>
+  <a class="btn primary" href="manifest.xml">⬇ Install Add-in</a>
+  <a class="btn secondary" href="https://github.com/RatioJuris/ab-layout">GitHub</a>
 
-        <a class="btn btn-secondary" href="https://github.com/RatioJuris/ab-layout" target="_blank">
-          ⭐ View on GitHub
-        </a>
-      </div>
+  <div class="stats" id="stats">Loading stats...</div>
+  <div class="stats" id="version">Loading version...</div>
+</section>
 
-      <p class="small" id="version">Loading version...</p>
-    </header>
-
-    <!-- About -->
-    <section>
-      <h2>📌 About</h2>
-      <div class="card">
-        AB Layout is a lightweight Microsoft Word Add-in that enables advocates to apply
-        court-specific formatting instantly with one click.
-      </div>
-    </section>
-
-    <!-- Features -->
-    <section>
-      <h2>🚀 Features</h2>
-      <div class="card">
-        <ul>
-          <li>🏛 One-click court formatting</li>
-          <li>📄 High Court, District Court & Affidavit layouts</li>
-          <li>🔁 Undo support</li>
-          <li>⚙ Preset-based architecture</li>
-          <li>🌐 Live updates via GitHub</li>
-          <li>💻 Works on existing documents</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Installation -->
-    <section>
-      <h2>📥 Installation</h2>
-      <div class="card">
-        <ol>
-          <li>Download the add-in</li>
-          <li>Open Microsoft Word</li>
-          <li>Go to <code>Insert → Add-ins → Upload My Add-in</code></li>
-          <li>Select <code>manifest.xml</code></li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- Privacy -->
-    <section>
-      <h2>🔒 Privacy Policy</h2>
-      <div class="card">
-        AB Layout does not collect personal data.  
-        For platform-level privacy details, refer to GitHub:
-        <br/><br/>
-        <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank">
-          GitHub Privacy Policy
-        </a>
-      </div>
-    </section>
-
-    <!-- Contact -->
-    <section>
-      <h2>📬 Contact</h2>
-      <div class="card">
-        Maintained as an independent system initiative<br/>
-        GitHub:
-        <a href="https://github.com/RatioJuris" target="_blank">
-          https://github.com/RatioJuris
-        </a>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-      <p>© <span id="year"></span> AB Layout</p>
-      <p>
-        <a href="https://github.com/RatioJuris/ab-layout" target="_blank">Repository</a>
-      </p>
-    </footer>
-
+<!-- FEATURES -->
+<section class="section">
+  <h2>🚀 Features</h2>
+  <div class="card">
+    <ul>
+      <li>⚡ One-click legal formatting</li>
+      <li>🏛 Court-specific layouts</li>
+      <li>🔁 Undo support</li>
+      <li>🌐 Live updates</li>
+      <li>📑 Works on large documents</li>
+    </ul>
   </div>
+</section>
 
-  <!-- Script -->
-  <script>
-    // Dynamic year
-    document.getElementById("year").innerText = new Date().getFullYear();
+<!-- LAYOUTS -->
+<section class="section">
+  <h2>📄 Supported Layouts</h2>
+  <div class="grid" id="layouts"></div>
+</section>
 
-    // Dynamic version fetch
-    fetch("https://ratiojuris.github.io/ab-layout/layouts/layouts.json")
-      .then(res => res.json())
-      .then(data => {
-        const version = data._meta?.version || "1.0.0";
-        document.getElementById("version").innerText = "Version: " + version;
-      })
-      .catch(() => {
-        document.getElementById("version").innerText = "Version: 1.0.0";
-      });
-  </script>
+<!-- INSTALL -->
+<section class="section">
+  <h2>📥 Installation</h2>
+  <div class="card">
+    <ol>
+      <li>Download manifest.xml</li>
+      <li>Open Microsoft Word</li>
+      <li>Insert → Add-ins → Upload</li>
+      <li>Select file</li>
+    </ol>
+  </div>
+</section>
+
+<!-- PRIVACY -->
+<section class="section">
+  <h2>🔒 Privacy</h2>
+  <div class="card">
+    No personal data is collected.  
+    <br/><br/>
+    <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement">
+      GitHub Privacy Policy
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div class="footer">
+  © <span id="year"></span> AB Layout  
+  <br/>
+  <a href="https://github.com/RatioJuris">RatioJuris</a>
+</div>
+
+</div>
+
+<script>
+const CONFIG = {
+  repo:"RatioJuris/ab-layout",
+  layouts:"https://ratiojuris.github.io/ab-layout/layouts/layouts.json"
+};
+
+document.getElementById("year").innerText=new Date().getFullYear();
+
+// META + LAYOUTS
+fetch(CONFIG.layouts)
+.then(r=>r.json())
+.then(data=>{
+  document.getElementById("version").innerText="Version: "+(data._meta?.version||"1.0.0");
+  document.getElementById("desc").innerText=data._meta?.description||"Legal formatting system";
+
+  const container=document.getElementById("layouts");
+
+  (data.layouts||[]).forEach(l=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`<strong>${l.name}</strong><br/><span class="small">${l.type}</span>`;
+    container.appendChild(div);
+  });
+});
+
+// GITHUB STATS
+fetch(`https://api.github.com/repos/${CONFIG.repo}`)
+.then(r=>r.json())
+.then(repo=>{
+  document.getElementById("stats").innerText =
+    `⭐ ${repo.stargazers_count} • 🍴 ${repo.forks_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
+});
+</script>
 
 </body>
 </html>
