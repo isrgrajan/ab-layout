@@ -6,22 +6,39 @@
   xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
   xsi:type="TaskPaneApp">
 
+  <!-- ===== CORE ===== -->
+
   <Id>8b7c2d3a-6f9a-4b7c-9d2e-1a2b3c4d5e6f</Id>
-  <Version>1.0.0.0</Version>
-  <ProviderName>AB Layout</ProviderName>
+  <Version>3.1.0.0</Version>
+
+  <ProviderName>RatioJuris</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
 
   <DisplayName DefaultValue="AB Layout"/>
-  <Description DefaultValue="Advocate Benefit Layout for Indian Courts"/>
+  <Description DefaultValue="Legal formatting engine for Indian courts."/>
 
-  <!-- ✅ Updated to RatioJuris (privacy-safe) -->
-  <IconUrl DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icon-32.png"/>
+  <!-- ===== ICONS ===== -->
+
+  <IconUrl DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icons/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icons/icon-80.png"/>
+
+  <!-- ===== LINKS ===== -->
+
   <SupportUrl DefaultValue="https://github.com/RatioJuris/ab-layout"/>
+
+  <!-- ===== SECURITY ===== -->
+
+  <AppDomains>
+    <AppDomain>https://ratiojuris.github.io</AppDomain>
+  </AppDomains>
+
+  <!-- ===== HOST ===== -->
 
   <Hosts>
     <Host Name="Document"/>
   </Hosts>
+
+  <!-- ===== REQUIREMENTS ===== -->
 
   <Requirements>
     <Sets DefaultMinVersion="1.3">
@@ -29,30 +46,41 @@
     </Sets>
   </Requirements>
 
+  <!-- ===== ENTRY ===== -->
+
   <DefaultSettings>
     <SourceLocation DefaultValue="https://ratiojuris.github.io/ab-layout/web/taskpane.html"/>
   </DefaultSettings>
 
+  <!-- ===== PERMISSIONS ===== -->
+
   <Permissions>ReadWriteDocument</Permissions>
 
-  <!-- Ribbon + Quick Access Toolbar -->
+  <!-- ===== MODERN RIBBON ===== -->
+
   <VersionOverrides
     xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
-    xsi:type="VersionOverridesV1_0">
+    xsi:type="VersionOverridesV1_1">
 
     <Hosts>
       <Host xsi:type="Document">
 
         <DesktopFormFactor>
 
-          <!-- Ribbon UI -->
+          <!-- ===== CUSTOM TAB ===== -->
+
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
-            <OfficeTab id="TabHome">
+
+            <CustomTab id="ABLayoutTab">
+              <Label resid="tabLabel"/>
+
               <Group id="ABLayoutGroup">
                 <Label resid="groupLabel"/>
 
                 <Control xsi:type="Button" id="OpenTaskpaneButton">
+
                   <Label resid="buttonLabel"/>
+
                   <Supertip>
                     <Title resid="buttonLabel"/>
                     <Description resid="buttonDesc"/>
@@ -68,40 +96,52 @@
                     <TaskpaneId>ABLayoutPane</TaskpaneId>
                     <SourceLocation resid="taskpaneUrl"/>
                   </Action>
+
                 </Control>
 
               </Group>
-            </OfficeTab>
+            </CustomTab>
+
           </ExtensionPoint>
 
-          <!-- Quick Access Toolbar -->
+          <!-- ===== QUICK ACCESS TOOLBAR ===== -->
+
           <ExtensionPoint xsi:type="QuickAccessToolbar">
             <OfficeCommand id="OpenTaskpaneButton"/>
           </ExtensionPoint>
 
         </DesktopFormFactor>
+
       </Host>
     </Hosts>
 
+    <!-- ===== RESOURCES ===== -->
+
     <Resources>
+
+      <!-- ICONS -->
       <bt:Images>
-        <bt:Image id="icon16" DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icon-32.png"/>
-        <bt:Image id="icon32" DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icon-32.png"/>
-        <bt:Image id="icon80" DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icon-32.png"/>
+        <bt:Image id="icon16" DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icons/icon-16.png"/>
+        <bt:Image id="icon32" DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icons/icon-32.png"/>
+        <bt:Image id="icon80" DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icons/icon-80.png"/>
       </bt:Images>
 
+      <!-- URL -->
       <bt:Urls>
         <bt:Url id="taskpaneUrl" DefaultValue="https://ratiojuris.github.io/ab-layout/web/taskpane.html"/>
       </bt:Urls>
 
+      <!-- TEXT -->
       <bt:ShortStrings>
-        <bt:String id="groupLabel" DefaultValue="AB Layout"/>
+        <bt:String id="tabLabel" DefaultValue="AB Layout"/>
+        <bt:String id="groupLabel" DefaultValue="Layout Tools"/>
         <bt:String id="buttonLabel" DefaultValue="AB Layout"/>
       </bt:ShortStrings>
 
       <bt:LongStrings>
         <bt:String id="buttonDesc" DefaultValue="Apply court layouts instantly"/>
       </bt:LongStrings>
+
     </Resources>
 
   </VersionOverrides>
