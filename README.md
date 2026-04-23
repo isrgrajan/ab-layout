@@ -7,152 +7,91 @@
 
 ---
 
-## 📌 About
+## ⟡ Overview
 
-**AB Layout (Advocate Benefit Layout)** is an open-source **Microsoft Word Office JS Add-in** designed for **Indian legal drafting**.
+**AB Layout** is an open-source **Microsoft Word Office JS Add-in** designed for structured, court-compliant legal drafting in India.
 
-It enables advocates, law students, and professionals to:
-
-* ⚡ Apply **court-specific formatting instantly**
-* 📄 Convert documents into **Legal (8.5" × 14") layouts**
-* 🔁 Toggle layouts with **Undo support**
-* 🌐 Stay updated via **GitHub-powered layout sync**
+It transforms raw documents into **court-ready formats instantly**, eliminating repetitive formatting effort.
 
 ---
 
-## 🚀 Features
+## ⟡ Capabilities
 
-* 🏛 **Multi-Court Layout Support** (High Court, District Court, etc.)
-* ⚙️ **One-Click Formatting**
-* 🔁 **Undo Layout Changes**
-* 📑 Works on **existing documents (even 100+ pages)**
-* 🌐 **Live Updates via GitHub (no reinstall needed)**
-* 🧩 **Open Source & Extensible**
-
----
-
-## 🖥️ Demo / Live
-
-🌐 **Live Add-in Source:**
-👉 https://isrgrajan.github.io/ab-layout/
+- ⚡ Instant **court-specific formatting**
+- 📄 Legal page conversion *(8.5" × 14")*
+- 🔁 Reversible actions *(Undo supported)*
+- 📑 Works on **large documents (100+ pages)**
+- 🌐 **Live layout updates via GitHub**
+- 🧩 Open and extensible system
 
 ---
 
-## 📥 Installation Guide
+## ⟡ Live Demo
 
-### Step 1: Download Manifest
+🌐 **Access Add-in Source:**  
+👉 https://ratiojuris.github.io/ab-layout/
 
-Download the `manifest.xml` file from the repository.
+---
 
-### Step 2: Open Microsoft Word
+## ⟡ Installation
 
-Go to:
-
-```
-Insert → Add-ins → Upload My Add-in
+```text
+Download manifest.xml  
+Open Word → Insert → Add-ins → Upload My Add-in  
+Select manifest.xml  
 ```
 
-### Step 3: Upload Manifest
+---
 
-Select the downloaded `manifest.xml`
+## ⟡ Usage Flow
 
-🎉 Done! AB Layout will appear inside Word.
+```text
+Open Panel → Select Court → Apply Layout → Undo (if required)
+```
 
 ---
 
-## 🧭 How to Use
-
-1. Open the **AB Layout panel**
-2. Select:
-
-   * State
-   * Court
-3. Click:
-
-   * ✅ **Apply Layout**
-   * 🔁 **Undo** (if needed)
-
----
-
-## 📁 Project Structure
+## ⟡ Structure
 
 ```bash
 ab-layout/
-│
 ├── manifest.xml
 ├── web/
-│   ├── taskpane.html
-│   ├── taskpane.js
-│   ├── styles.css
-│
 ├── layouts/
-│   └── layouts.json
-│
 ├── assets/
-│   └── icon-32.png
-│
 └── README.md
 ```
 
 ---
 
-## 🔗 Internal Navigation
+## ⟡ Contribution Protocol
 
-* 📌 [About](#-about)
-* 🚀 [Features](#-features)
-* 📥 [Installation Guide](#-installation-guide)
-* 🧭 [How to Use](#-how-to-use)
-* 📁 [Project Structure](#-project-structure)
-* 🤝 [Contributing](#-contributing)
-* 📄 [License](#-license)
-
----
-
-## 🤝 Contributing
-
-We welcome contributions from the legal and developer community!
-
-### ➕ Add a New Court Layout
-
-1. Go to `/layouts/layouts.json`
-2. Add your court format
-3. Submit a Pull Request
-
-### 📌 Ensure:
-
-* Correct margins
-* Proper naming
-* Tested formatting in Word
+```text
+1. Edit /layouts/layouts.json
+2. Add court format
+3. Validate formatting
+4. Submit PR
+```
 
 ---
 
-## 📄 License
+## ⟡ License
 
-Licensed under the **Apache License 2.0**
-
-© 2026 **Bee Isrg Rajan**
+Apache License 2.0
 
 ---
 
-## 🌟 Support the Project
+## ⟡ Maintainer
 
-If you find this useful:
-
-* ⭐ Star the repository
-* 🍴 Fork and contribute
-* 📢 Share with legal professionals
+Maintained as an independent system initiative  
+🔗 https://github.com/RatioJuris
 
 ---
 
-## 📬 Contact / Maintainer
+## ⟡ Support
 
-**Maintained by:** Bee Isrg Rajan
-🔗 GitHub: https://github.com/isrgrajan
-
----
-
-## 🔍 SEO Keywords
-
-> Microsoft Word Add-in, Legal Document Formatting, Indian Court Format, Advocate Tools, High Court Formatting, Legal Drafting Automation, Office JS Add-in, Court Layout Tool
+- ⭐ Star the repository  
+- 🍴 Fork and contribute  
+- 📢 Share with legal professionals  
 
 ---
