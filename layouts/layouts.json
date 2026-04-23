@@ -4,31 +4,31 @@
     "version": "1.0.0",
     "maintainer": "RatioJuris",
     "description": "Production-ready layout definitions for Indian courts",
-    "unit": "inch"
+    "unit": "points"
   },
 
   "presets": {
     "high_court_standard": {
       "label": "High Court Standard (Legal)",
-      "width": 8.5,
-      "height": 14,
-      "margins": { "top": 1.5, "bottom": 1.5, "left": 0.5, "right": 1.7 }
+      "width": 612,
+      "height": 1008,
+      "margins": { "top": 108, "bottom": 108, "left": 36, "right": 122.4 }
     },
 
     "high_court_new": {
       "label": "High Court New* (A4)",
-      "width": 8.5,
-      "height": 11,
-      "margins": { "top": 1, "bottom": 1, "left": 0.5, "right": 1.5 }
+      "width": 612,
+      "height": 792,
+      "margins": { "top": 72, "bottom": 72, "left": 36, "right": 108 }
     },
 
     "notary_affidavit": {
       "label": "Notary / Affidavit",
-      "width": 8.5,
-      "height": 11,
+      "width": 612,
+      "height": 792,
       "multiPage": true,
-      "firstPage": { "top": 6.5, "bottom": 0.8, "left": 1, "right": 1 },
-      "otherPages": { "top": 1, "bottom": 1, "left": 1, "right": 1 }
+      "firstPage": { "top": 468, "bottom": 57.6, "left": 72, "right": 72 },
+      "otherPages": { "top": 72, "bottom": 72, "left": 72, "right": 72 }
     }
   },
 
