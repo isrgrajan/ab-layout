@@ -1,96 +1,93 @@
 /*
 AB Layout (Advocate Benefit Layout)
-Version: 1.0.0
+Version: 2.0.0
 
 Description:
-Production-ready layout engine for Microsoft Word Add-in.
+Validated, points-based layout engine for Microsoft Word Add-in.
 
 Maintainer:
 RatioJuris
 */
 
+/* ===== STATE ===== */
+
 let isOfficeReady = false;
+let dataStore = {};
+let currentLayout = null;
+let previousLayout = null;
+
+const LAYOUTS_URL =
+  "https://ratiojuris.github.io/ab-layout/layouts/layouts.json?v=2.0.0";
+
+/* ===== INIT ===== */
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.Word) {
     isOfficeReady = true;
-    loadLayouts();
+    init();
   } else {
     setStatus("Open inside Microsoft Word");
   }
 });
 
-const LAYOUTS_URL =
-  "https://ratiojuris.github.io/ab-layout/layouts/layouts.json?v=1.0.1";
+function init() {
+  loadLayouts();
+}
 
-let dataStore = {};
-let currentLayout = null;
-let previousLayout = null;
-
-/* ===== Utils ===== */
+/* ===== UI ===== */
 
 function setStatus(message) {
   const el = document.getElementById("status");
   if (el) el.innerText = message;
 }
 
-function toPoints(value, unit = "inch") {
-  if (value === undefined || value === null) return 0;
-
-  unit = (unit || "inch").toLowerCase().trim();
-
-  if (unit === "cm") return value * 28.3465;
-
-  // FORCE inch default
-  return value * 72;
-}
-
-function resolveUnit(layout) {
-  const unit = (layout?.unit || dataStore?._meta?.unit || "inch")
-    .toLowerCase()
-    .trim();
-
-  if (unit === "cm") return "cm";
-  return "inch"; // force everything else to inch
-}
-
-/* ===== Load Layouts ===== */
+/* ===== DATA LOADING ===== */
 
 async function loadLayouts() {
   try {
     setStatus("Loading layouts...");
 
-    const response = await fetch(LAYOUTS_URL);
-    if (!response.ok) throw new Error("Failed to fetch layouts");
+    const res = await fetch(LAYOUTS_URL);
+    if (!res.ok) throw new Error("Failed to fetch layouts");
 
-    dataStore = await response.json();
+    dataStore = await res.json();
+
+    validateSchema(dataStore);
 
     populateLayouts();
 
     document.getElementById("applyBtn").disabled = false;
 
     setStatus("Ready");
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     setStatus("Failed to load layouts");
   }
 }
 
-/* ===== Populate UI ===== */
+/* ===== SCHEMA VALIDATION ===== */
+
+function validateSchema(store) {
+  if (!store.layouts || !store.presets) {
+    throw new Error("Invalid layout schema");
+  }
+}
+
+/* ===== UI POPULATION ===== */
 
 function populateLayouts() {
   const select = document.getElementById("courtSelect");
   select.innerHTML = "";
 
-  (dataStore.layouts || []).forEach((layout, index) => {
+  dataStore.layouts.forEach((layout, i) => {
     const option = document.createElement("option");
-    option.value = index;
+    option.value = i;
     option.textContent = layout.name;
     select.appendChild(option);
   });
 }
 
-/* ===== Layout Resolution ===== */
+/* ===== RESOLUTION ===== */
 
 function getSelectedLayout() {
   const index = document.getElementById("courtSelect").value;
@@ -98,7 +95,7 @@ function getSelectedLayout() {
   const item = dataStore.layouts[index];
   if (!item) return null;
 
-  const preset = dataStore.presets?.[item.preset];
+  const preset = dataStore.presets[item.preset];
   if (!preset) return null;
 
   return {
@@ -108,7 +105,49 @@ function getSelectedLayout() {
   };
 }
 
-/* ===== Apply Layout ===== */
+/* ===== VALIDATION ENGINE ===== */
+
+function validateLayout(layout) {
+  if (!layout) return fail("Layout missing");
+
+  if (!isNumber(layout.width) || !isNumber(layout.height)) {
+    return fail("Invalid page size");
+  }
+
+  if (layout.width <= 0 || layout.height <= 0) {
+    return fail("Page size must be positive");
+  }
+
+  const checkMargins = (m) => {
+    if (!m) return false;
+
+    return ["top", "bottom", "left", "right"].every(
+      k => isNumber(m[k]) && m[k] >= 0
+    );
+  };
+
+  if (layout.multiPage) {
+    if (!checkMargins(layout.firstPage) || !checkMargins(layout.otherPages)) {
+      return fail("Invalid multi-page margins");
+    }
+  } else {
+    if (!checkMargins(layout.margins)) {
+      return fail("Invalid margins");
+    }
+  }
+
+  return { valid: true };
+}
+
+function isNumber(v) {
+  return typeof v === "number" && !isNaN(v);
+}
+
+function fail(msg) {
+  return { valid: false, error: msg };
+}
+
+/* ===== APPLY ENGINE ===== */
 
 async function applySelected() {
   if (!isOfficeReady) {
@@ -119,12 +158,18 @@ async function applySelected() {
   const layout = getSelectedLayout();
   if (!layout) return;
 
-  if (currentLayout && currentLayout.id === layout.id) {
+  if (currentLayout?.id === layout.id) {
     setStatus("Already applied");
     return;
   }
 
-  const unit = resolveUnit(layout);
+  const check = validateLayout(layout);
+
+  if (!check.valid) {
+    setStatus("Error: " + check.error);
+    console.error(check.error);
+    return;
+  }
 
   try {
     await Word.run(async (context) => {
@@ -135,7 +180,7 @@ async function applySelected() {
 
       if (!sections.items.length) return;
 
-      /* Save previous */
+      /* SAVE STATE */
       const first = sections.items[0].pageSetup;
 
       previousLayout = {
@@ -147,23 +192,23 @@ async function applySelected() {
         right: first.rightMargin
       };
 
-      sections.items.forEach((section, index) => {
+      /* APPLY */
+      sections.items.forEach((section, i) => {
         let margins = layout.margins;
 
         if (layout.multiPage) {
-          margins = index === 0 ? layout.firstPage : layout.otherPages;
+          margins = i === 0 ? layout.firstPage : layout.otherPages;
         }
 
-        // SAFETY: ensure margins exist
         if (!margins) return;
 
-        section.pageSetup.pageWidth = toPoints(layout.width, unit);
-        section.pageSetup.pageHeight = toPoints(layout.height, unit);
+        section.pageSetup.pageWidth = layout.width;
+        section.pageSetup.pageHeight = layout.height;
 
-        section.pageSetup.topMargin = toPoints(margins.top, unit);
-        section.pageSetup.bottomMargin = toPoints(margins.bottom, unit);
-        section.pageSetup.leftMargin = toPoints(margins.left, unit);
-        section.pageSetup.rightMargin = toPoints(margins.right, unit);
+        section.pageSetup.topMargin = margins.top;
+        section.pageSetup.bottomMargin = margins.bottom;
+        section.pageSetup.leftMargin = margins.left;
+        section.pageSetup.rightMargin = margins.right;
       });
 
       await context.sync();
@@ -172,13 +217,15 @@ async function applySelected() {
     currentLayout = layout;
     setStatus("Applied: " + layout.name);
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     setStatus("Failed to apply layout");
+
+    if (previousLayout) undoLayout();
   }
 }
 
-/* ===== Undo Layout ===== */
+/* ===== UNDO ENGINE ===== */
 
 async function undoLayout() {
   if (!previousLayout) {
@@ -209,8 +256,8 @@ async function undoLayout() {
     currentLayout = null;
     setStatus("Layout restored");
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     setStatus("Undo failed");
   }
 }
