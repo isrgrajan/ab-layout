@@ -7,18 +7,23 @@
 
 <title>AB Layout – Legal Formatting Engine</title>
 
-<!-- SEO / META -->
+<!-- SEO -->
 <meta name="description" content="AB Layout is a Microsoft Word Add-in for Indian legal drafting with automated court formatting." />
 <meta name="theme-color" content="#0f6cbd" />
+<link rel="canonical" href="https://ratiojuris.github.io/ab-layout/" />
 
 <!-- Open Graph -->
 <meta property="og:title" content="AB Layout" />
 <meta property="og:description" content="Legal formatting engine for advocates." />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="https://ratiojuris.github.io/ab-layout/" />
+
+<!-- Favicon -->
+<link rel="icon" href="assets/icon-32.png" />
 
 <style>
 
-/* ===== THEME SYSTEM ===== */
+/* ===== THEME ===== */
 
 :root {
   --bg:#f9fafb;
@@ -30,7 +35,6 @@
   --link:#0f6cbd;
 }
 
-/* DARK */
 [data-theme="dark"] {
   --bg:#1f1f1f;
   --text:#f5f5f5;
@@ -41,7 +45,6 @@
   --link:#4cc2ff;
 }
 
-/* AUTO MODE */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --bg:#1f1f1f;
@@ -59,71 +62,43 @@ body {
   font-family:"Segoe UI",system-ui;
   background:var(--bg);
   color:var(--text);
-  transition: all 0.2s ease;
+  transition:0.2s;
 }
 
 a {
   color:var(--link);
   text-decoration:none;
 }
-a:hover {
-  text-decoration:underline;
-}
+a:hover { text-decoration:underline; }
 
-/* ===== LAYOUT ===== */
+/* ===== UI ===== */
 
-.container {
-  max-width:1000px;
-  margin:auto;
-  padding:20px;
-}
+.container { max-width:1000px; margin:auto; padding:20px; }
 
-.hero {
-  text-align:center;
-  padding:60px 20px;
-}
+.hero { text-align:center; padding:60px 20px; }
 
-.hero h1 {
-  font-size:36px;
-  margin-bottom:10px;
-}
+.hero h1 { font-size:36px; margin-bottom:10px; }
 
-.hero p {
-  color:var(--muted);
-}
-
-/* ===== BUTTONS ===== */
+.hero p { color:var(--muted); }
 
 .btn {
   padding:12px 18px;
   border-radius:6px;
-  text-decoration:none;
   font-weight:600;
   margin:6px;
   display:inline-block;
 }
 
-.primary {
-  background:var(--primary);
-  color:#fff;
-}
-
-.secondary {
-  background:var(--card);
-  border:1px solid var(--border);
-}
-
-/* ===== THEME TOGGLE ===== */
+.primary { background:var(--primary); color:#fff; }
+.secondary { background:var(--card); border:1px solid var(--border); }
 
 .toggle {
   position:absolute;
   top:20px;
   right:20px;
   cursor:pointer;
-  font-size:14px;
+  opacity:0.7;
 }
-
-/* ===== CONTENT ===== */
 
 .section { margin-top:50px; }
 
@@ -132,7 +107,6 @@ a:hover {
   border:1px solid var(--border);
   padding:16px;
   border-radius:8px;
-  margin-top:10px;
 }
 
 .grid {
@@ -148,12 +122,18 @@ a:hover {
   font-size:13px;
 }
 
+.status {
+  margin-top:10px;
+  font-size:13px;
+  color:var(--muted);
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="toggle" onclick="toggleTheme()">🌗 Theme</div>
+<div class="toggle" onclick="toggleTheme()">🌗</div>
 
 <div class="container">
 
@@ -161,8 +141,8 @@ a:hover {
   <h1>⚖ AB Layout</h1>
   <p id="desc">Loading...</p>
 
-  <!-- FIXED: FORCE DOWNLOAD -->
-  <a class="btn primary" href="manifest.xml" download>
+  <!-- Better install (force download fallback) -->
+  <a class="btn primary" href="manifest.xml" onclick="forceDownload(event)">
     ⬇ Install Add-in
   </a>
 
@@ -170,8 +150,8 @@ a:hover {
     GitHub
   </a>
 
-  <div id="stats"></div>
-  <div id="version"></div>
+  <div class="status" id="stats"></div>
+  <div class="status" id="version"></div>
 </section>
 
 <section class="section">
@@ -180,64 +160,96 @@ a:hover {
 </section>
 
 <div class="footer">
-  © <span id="year"></span> AB Layout  
+  © <span id="year"></span> AB Layout
 </div>
 
 </div>
 
 <script>
 
-/* ===== THEME SYSTEM ===== */
+/* ===== THEME ===== */
 
 function toggleTheme(){
   const current = document.documentElement.getAttribute("data-theme");
   const next = current === "dark" ? "light" : "dark";
-
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("theme", next);
 }
 
-// Load saved theme
 const saved = localStorage.getItem("theme");
-if(saved){
-  document.documentElement.setAttribute("data-theme", saved);
+if(saved) document.documentElement.setAttribute("data-theme", saved);
+
+/* ===== DOWNLOAD FIX ===== */
+
+function forceDownload(e){
+  e.preventDefault();
+  fetch("manifest.xml")
+    .then(r => r.blob())
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "manifest.xml";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
 }
 
-/* ===== DATA ===== */
+/* ===== CONFIG ===== */
 
 const CONFIG = {
   repo:"RatioJuris/ab-layout",
-  layouts:"https://ratiojuris.github.io/ab-layout/layouts/layouts.json"
+  remote:"https://ratiojuris.github.io/ab-layout/layouts/layouts.json",
+  local:"layouts/layouts.json"
 };
 
-document.getElementById("year").innerText=new Date().getFullYear();
+document.getElementById("year").innerText = new Date().getFullYear();
 
-/* ===== META + LAYOUTS ===== */
+/* ===== SAFE FETCH ===== */
 
-fetch(CONFIG.layouts)
-.then(r=>r.json())
+async function fetchLayouts(){
+  try {
+    const r = await fetch(CONFIG.remote);
+    if(!r.ok) throw "fail";
+    return await r.json();
+  } catch {
+    console.warn("Offline fallback");
+    const r = await fetch(CONFIG.local);
+    return await r.json();
+  }
+}
+
+/* ===== LOAD ===== */
+
+fetchLayouts()
 .then(data=>{
-  document.getElementById("version").innerText="Version: "+data._meta.version;
-  document.getElementById("desc").innerText=data._meta.description;
+  document.getElementById("version").innerText = "Version: " + data._meta?.version;
+  document.getElementById("desc").innerText = data._meta?.description;
 
-  const container=document.getElementById("layouts");
+  const container = document.getElementById("layouts");
 
-  data.layouts.forEach(l=>{
-    const el=document.createElement("div");
-    el.className="card";
-    el.innerHTML=`<strong>${l.name}</strong><br/><small>${l.type}</small>`;
+  (data.layouts || []).forEach(l=>{
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `<strong>${l.name}</strong><br/><small>${l.type}</small>`;
     container.appendChild(el);
   });
+})
+.catch(()=>{
+  document.getElementById("desc").innerText = "Unable to load layouts";
 });
 
-/* ===== GITHUB ===== */
+/* ===== GITHUB SAFE ===== */
 
 fetch(`https://api.github.com/repos/${CONFIG.repo}`)
 .then(r=>r.json())
 .then(repo=>{
-  document.getElementById("stats").innerText =
-    `⭐ ${repo.stargazers_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
-});
+  if(repo?.stargazers_count !== undefined){
+    document.getElementById("stats").innerText =
+      `⭐ ${repo.stargazers_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
+  }
+})
+.catch(()=>{});
 
 </script>
 
