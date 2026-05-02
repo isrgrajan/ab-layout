@@ -7,250 +7,149 @@
 
 <title>AB Layout – Legal Formatting Engine</title>
 
-<!-- SEO -->
 <meta name="description" content="AB Layout is a Microsoft Word Add-in for Indian legal drafting with automated court formatting." />
 <meta name="theme-color" content="#0f6cbd" />
+
 <link rel="canonical" href="https://ratiojuris.github.io/ab-layout/" />
-
-<!-- Open Graph -->
-<meta property="og:title" content="AB Layout" />
-<meta property="og:description" content="Legal formatting engine for advocates." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://ratiojuris.github.io/ab-layout/" />
-
-<!-- Favicon -->
 <link rel="icon" href="assets/icon-32.png" />
 
-<style>
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
 
-/* ===== THEME ===== */
+<!-- Alpine JS -->
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-:root {
-  --bg:#f9fafb;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --card:#ffffff;
-  --border:#e5e7eb;
-  --primary:#0f6cbd;
-  --link:#0f6cbd;
-}
+<!-- Axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-[data-theme="dark"] {
-  --bg:#1f1f1f;
-  --text:#f5f5f5;
-  --muted:#b3b3b3;
-  --card:#2b2b2b;
-  --border:#333;
-  --primary:#4cc2ff;
-  --link:#4cc2ff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --bg:#1f1f1f;
-    --text:#f5f5f5;
-    --muted:#b3b3b3;
-    --card:#2b2b2b;
-    --border:#333;
-    --primary:#4cc2ff;
-    --link:#4cc2ff;
-  }
-}
-
-body {
-  margin:0;
-  font-family:"Segoe UI",system-ui;
-  background:var(--bg);
-  color:var(--text);
-  transition:0.2s;
-}
-
-a {
-  color:var(--link);
-  text-decoration:none;
-}
-a:hover { text-decoration:underline; }
-
-/* ===== UI ===== */
-
-.container { max-width:1000px; margin:auto; padding:20px; }
-
-.hero { text-align:center; padding:60px 20px; }
-
-.hero h1 { font-size:36px; margin-bottom:10px; }
-
-.hero p { color:var(--muted); }
-
-.btn {
-  padding:12px 18px;
-  border-radius:6px;
-  font-weight:600;
-  margin:6px;
-  display:inline-block;
-}
-
-.primary { background:var(--primary); color:#fff; }
-.secondary { background:var(--card); border:1px solid var(--border); }
-
-.toggle {
-  position:absolute;
-  top:20px;
-  right:20px;
-  cursor:pointer;
-  opacity:0.7;
-}
-
-.section { margin-top:50px; }
-
-.card {
-  background:var(--card);
-  border:1px solid var(--border);
-  padding:16px;
-  border-radius:8px;
-}
-
-.grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:12px;
-}
-
-.footer {
-  text-align:center;
-  margin-top:60px;
-  color:var(--muted);
-  font-size:13px;
-}
-
-.status {
-  margin-top:10px;
-  font-size:13px;
-  color:var(--muted);
-}
-
-</style>
 </head>
 
-<body>
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+      x-data="app()" x-init="init()">
 
-<div class="toggle" onclick="toggleTheme()">🌗</div>
+<!-- TOGGLE -->
+<div class="absolute top-5 right-5 cursor-pointer text-xl" @click="toggleTheme()">🌗</div>
 
-<div class="container">
+<div class="max-w-5xl mx-auto p-6">
 
-<section class="hero">
-  <h1>⚖ AB Layout</h1>
-  <p id="desc">Loading...</p>
+<!-- HERO -->
+<section class="text-center py-16">
+  <h1 class="text-4xl font-bold mb-2">⚖ AB Layout</h1>
+  <p class="text-gray-500" x-text="desc">Loading...</p>
 
-  <!-- Better install (force download fallback) -->
-  <a class="btn primary" href="manifest.xml" onclick="forceDownload(event)">
-    ⬇ Install Add-in
-  </a>
+  <div class="mt-6 space-x-3">
+    <a href="manifest.xml"
+       @click.prevent="downloadManifest"
+       class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold">
+       ⬇ Install Add-in
+    </a>
 
-  <a class="btn secondary" href="https://github.com/RatioJuris/ab-layout">
-    GitHub
-  </a>
+    <a href="https://github.com/RatioJuris/ab-layout"
+       class="border px-5 py-2 rounded-md">
+       GitHub
+    </a>
+  </div>
 
-  <div class="status" id="stats"></div>
-  <div class="status" id="version"></div>
+  <div class="text-sm text-gray-500 mt-3" x-text="stats"></div>
+  <div class="text-sm text-gray-500" x-text="version"></div>
 </section>
 
-<section class="section">
-  <h2>📄 Layouts</h2>
-  <div class="grid" id="layouts"></div>
+<!-- LAYOUTS -->
+<section class="mt-10">
+  <h2 class="text-2xl font-semibold mb-4">📄 Layouts</h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <template x-for="l in layouts" :key="l.id">
+      <div class="border rounded-lg p-4 bg-white dark:bg-gray-800 shadow-sm">
+        <strong x-text="l.name"></strong>
+        <div class="text-sm text-gray-500" x-text="l.type"></div>
+      </div>
+    </template>
+  </div>
 </section>
 
-<div class="footer">
-  © <span id="year"></span> AB Layout
+<!-- FOOTER -->
+<div class="text-center mt-16 text-sm text-gray-500">
+  © <span x-text="year"></span> AB Layout
 </div>
 
 </div>
 
 <script>
+function app(){
+  return {
+    desc: "Loading...",
+    version: "",
+    stats: "",
+    layouts: [],
+    year: new Date().getFullYear(),
 
-/* ===== THEME ===== */
+    CONFIG: {
+      repo: "RatioJuris/ab-layout",
+      layouts: "/ab-layout/layouts/layouts.json"
+    },
 
-function toggleTheme(){
-  const current = document.documentElement.getAttribute("data-theme");
-  const next = current === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("theme", next);
-}
+    async init(){
+      this.loadTheme();
+      await this.loadLayouts();
+      this.loadRepoStats();
+    },
 
-const saved = localStorage.getItem("theme");
-if(saved) document.documentElement.setAttribute("data-theme", saved);
+    /* ===== THEME ===== */
+    toggleTheme(){
+      const html = document.documentElement;
+      const isDark = html.classList.toggle("dark");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    },
 
-/* ===== DOWNLOAD FIX ===== */
+    loadTheme(){
+      const saved = localStorage.getItem("theme");
+      if(saved === "dark"){
+        document.documentElement.classList.add("dark");
+      }
+    },
 
-function forceDownload(e){
-  e.preventDefault();
-  fetch("manifest.xml")
-    .then(r => r.blob())
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
+    /* ===== FETCH LAYOUTS ===== */
+    async loadLayouts(){
+      try {
+        const res = await axios.get(this.CONFIG.layouts, { timeout: 5000 });
+
+        const data = res.data;
+
+        this.desc = data._meta?.description || "";
+        this.version = "Version: " + (data._meta?.version || "");
+        this.layouts = data.layouts || [];
+
+      } catch (e) {
+        console.error("Failed to load layouts", e);
+        this.desc = "Unable to load layouts";
+      }
+    },
+
+    /* ===== GITHUB STATS ===== */
+    async loadRepoStats(){
+      try {
+        const res = await axios.get(`https://api.github.com/repos/${this.CONFIG.repo}`);
+        const repo = res.data;
+
+        this.stats = `⭐ ${repo.stargazers_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
+
+      } catch {}
+    },
+
+    /* ===== DOWNLOAD ===== */
+    async downloadManifest(){
+      const res = await axios.get("manifest.xml", { responseType: "blob" });
+
+      const url = URL.createObjectURL(res.data);
       const a = document.createElement("a");
       a.href = url;
       a.download = "manifest.xml";
       a.click();
       URL.revokeObjectURL(url);
-    });
-}
-
-/* ===== CONFIG ===== */
-
-const CONFIG = {
-  repo:"RatioJuris/ab-layout",
-  remote:"https://ratiojuris.github.io/ab-layout/layouts/layouts.json",
-  local:"layouts/layouts.json"
-};
-
-document.getElementById("year").innerText = new Date().getFullYear();
-
-/* ===== SAFE FETCH ===== */
-
-async function fetchLayouts(){
-  try {
-    const r = await fetch(CONFIG.remote);
-    if(!r.ok) throw "fail";
-    return await r.json();
-  } catch {
-    console.warn("Offline fallback");
-    const r = await fetch(CONFIG.local);
-    return await r.json();
+    }
   }
 }
-
-/* ===== LOAD ===== */
-
-fetchLayouts()
-.then(data=>{
-  document.getElementById("version").innerText = "Version: " + data._meta?.version;
-  document.getElementById("desc").innerText = data._meta?.description;
-
-  const container = document.getElementById("layouts");
-
-  (data.layouts || []).forEach(l=>{
-    const el = document.createElement("div");
-    el.className = "card";
-    el.innerHTML = `<strong>${l.name}</strong><br/><small>${l.type}</small>`;
-    container.appendChild(el);
-  });
-})
-.catch(()=>{
-  document.getElementById("desc").innerText = "Unable to load layouts";
-});
-
-/* ===== GITHUB SAFE ===== */
-
-fetch(`https://api.github.com/repos/${CONFIG.repo}`)
-.then(r=>r.json())
-.then(repo=>{
-  if(repo?.stargazers_count !== undefined){
-    document.getElementById("stats").innerText =
-      `⭐ ${repo.stargazers_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
-  }
-})
-.catch(()=>{});
-
 </script>
 
 </body>
