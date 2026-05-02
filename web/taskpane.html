@@ -1,160 +1,178 @@
+<!--
+File: taskpane.html
+Path: /web/taskpane.html
+Version: 3.1.1
+
+Description:
+Taskpane UI for AB Layout MS 365 Add-in. 
+Handles layout selection and theme toggling.
+
+Maintainer:
+RatioJuris
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AB Layout</title>
 
-<title>AB Layout</title>
+    <!-- Office JS (must stay CDN) -->
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 
-<!-- Office JS (must stay CDN) -->
-<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-
-<!-- 🔥 LOCAL FIRST (offline safe) -->
-<link rel="stylesheet" href="styles.css" />
-
+    <!-- LOCAL FIRST (offline safe) -->
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body oncontextmenu="return false;"> <!-- 🚫 Right-click disabled -->
 
-<!-- THEME -->
-<div style="text-align:right; font-size:12px; cursor:pointer;" onclick="toggleTheme()">
-  🌗 Theme
-</div>
+    <!-- THEME TOGGLE -->
+    <div style="text-align:right; padding: 4px 8px; font-size:12px; cursor:pointer; opacity: 0.8;" onclick="toggleTheme()">
+        🌗 Theme
+    </div>
 
-<header class="header">
-  <div class="title-row">
-    <span class="icon">⚖</span>
-    <h1>AB Layout</h1>
-  </div>
-  <div class="subtitle" id="subtitle">Advocate Benefit Layout</div>
-</header>
+    <header class="header">
+        <div class="title-row">
+            <span class="icon">⚖</span>
+            <h1>AB Layout</h1>
+        </div>
+        <div class="subtitle" id="subtitle">Advocate Benefit Layout</div>
+    </header>
 
-<hr />
+    <hr />
 
-<main>
+    <main>
+        <section class="section">
+            <label for="courtSelect">Select Court Layout</label>
+            <select id="courtSelect">
+                <option value="" disabled selected>Loading layouts...</option>
+            </select>
+        </section>
 
-  <section class="section">
-    <label for="courtSelect">Layout</label>
-    <select id="courtSelect"></select>
-  </section>
+        <section class="section">
+            <button id="applyBtn" onclick="applySelected()" disabled>
+                Apply Layout
+            </button>
 
-  <section class="section">
-    <button id="applyBtn" onclick="applySelected()" disabled>
-      Apply Layout
-    </button>
+            <button id="undoBtn" class="secondary" onclick="undoLayout()" disabled>
+                Undo
+            </button>
+        </section>
 
-    <button id="undoBtn" class="secondary" onclick="undoLayout()" disabled>
-      Undo
-    </button>
-  </section>
+        <section id="status" class="status">Initializing engine...</section>
+    </main>
 
-  <section id="status" class="status">Initializing engine...</section>
+    <footer class="footer">
+        <span id="version">v3.1.1</span>
+        <span> • </span>
+        <span id="engineState">Initializing...</span>
+    </footer>
 
-</main>
+    <!-- 🔥 LOCAL ENGINE -->
+    <script src="taskpane.js"></script>
 
-<footer class="footer">
-  <span id="version">v3.1.0</span>
-  <span> • </span>
-  <span id="engineState">Initializing...</span>
-</footer>
+    <script>
+        /* ===== CONFIG ===== */
+        const CONFIG = {
+            remote: "https://ratiojuris.github.io/ab-layout/layouts/layouts.json",
+            local: "layouts/layouts.json"
+        };
 
-<!-- 🔥 LOCAL ENGINE -->
-<script src="taskpane.js"></script>
+        /* ===== UI ELEMENTS ===== */
+        const UI = {
+            courtSelect: document.getElementById("courtSelect"),
+            version: document.getElementById("version"),
+            subtitle: document.getElementById("subtitle"),
+            status: document.getElementById("status"),
+            applyBtn: document.getElementById("applyBtn"),
+            undoBtn: document.getElementById("undoBtn"),
+            engineState: document.getElementById("engineState")
+        };
 
-<script>
+        /* ===== FETCH & POPULATE ===== */
+        async function loadEngine() {
+            try {
+                uiSetStatus("Fetching layouts...");
+                let data;
+                
+                try {
+                    const res = await fetch(CONFIG.remote);
+                    if (!res.ok) throw "Remote Unavailable";
+                    data = await res.json();
+                } catch (e) {
+                    console.warn("⚠️ Offline mode activated / Local fallback");
+                    const res = await fetch(CONFIG.local);
+                    data = await res.json();
+                }
 
-/* ===== CONFIG ===== */
+                // Update Metadata from JSON
+                if (data._meta) {
+                    UI.version.innerText = "v" + data._meta.version;
+                    UI.subtitle.innerText = data._meta.description;
+                }
 
-const CONFIG = {
-  remote: "https://ratiojuris.github.io/ab-layout/layouts/layouts.json",
-  local: "layouts/layouts.json"
-};
+                // Populate Dropdown
+                UI.courtSelect.innerHTML = ""; 
+                data.layouts.forEach(layout => {
+                    const opt = document.createElement("option");
+                    opt.value = layout.id;
+                    opt.textContent = layout.name;
+                    // Pass the preset key to the attribute for taskpane.js
+                    opt.setAttribute("data-preset", layout.preset); 
+                    UI.courtSelect.appendChild(opt);
+                });
 
-/* ===== UI ===== */
+                uiSetStatus("Ready", "success");
+                uiSetEngineState("Connected");
+                uiEnableApply(true);
 
-const UI = {
-  version: document.getElementById("version"),
-  subtitle: document.getElementById("subtitle"),
-  status: document.getElementById("status"),
-  applyBtn: document.getElementById("applyBtn"),
-  undoBtn: document.getElementById("undoBtn"),
-  engineState: document.getElementById("engineState")
-};
+            } catch (err) {
+                uiSetStatus("Initialization failed", "error");
+                console.error(err);
+            }
+        }
 
-/* ===== SAFE FETCH (ONLINE → OFFLINE FALLBACK) ===== */
+        /* ===== UI HELPER FUNCTIONS ===== */
+        function uiSetStatus(msg, type="info") {
+            UI.status.innerText = msg;
+            UI.status.className = "status " + type;
+        }
 
-async function fetchLayouts() {
-  try {
-    const res = await fetch(CONFIG.remote);
-    if (!res.ok) throw "remote fail";
-    return await res.json();
-  } catch {
-    console.warn("⚠️ Offline mode activated");
+        function uiSetEngineState(state) {
+            UI.engineState.innerText = state;
+        }
 
-    const res = await fetch(CONFIG.local);
-    return await res.json();
-  }
-}
+        function uiEnableApply(v) {
+            UI.applyBtn.disabled = !v;
+        }
 
-/* ===== META LOAD ===== */
+        function uiEnableUndo(v) {
+            UI.undoBtn.disabled = !v;
+        }
 
-fetchLayouts().then(data => {
+        /* ===== THEME MANAGEMENT ===== */
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute("data-theme");
+            const next = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("theme", next);
+        }
 
-  const meta = data._meta || {};
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        }
 
-  if (meta.version) UI.version.innerText = "v" + meta.version;
-  if (meta.description) UI.subtitle.innerText = meta.description;
-
-});
-
-/* ===== UI HOOKS ===== */
-
-function uiSetStatus(msg, type="info") {
-  UI.status.innerText = msg;
-  UI.status.className = "status " + type;
-}
-
-function uiSetEngineState(state) {
-  UI.engineState.innerText = state;
-}
-
-function uiEnableApply(v) {
-  UI.applyBtn.disabled = !v;
-}
-
-function uiEnableUndo(v) {
-  UI.undoBtn.disabled = !v;
-}
-
-/* ===== THEME ===== */
-
-function toggleTheme() {
-  const current = document.documentElement.getAttribute("data-theme");
-  const next = current === "dark" ? "light" : "dark";
-
-  document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("theme", next);
-}
-
-const savedTheme = localStorage.getItem("theme");
-if (savedTheme) {
-  document.documentElement.setAttribute("data-theme", savedTheme);
-}
-
-/* ===== WORD SYNC ===== */
-
-Office.onReady(() => {
-  try {
-    const theme = Office.context.officeTheme;
-
-    if (!savedTheme && theme?.bodyBackgroundColor) {
-      document.body.style.backgroundColor = theme.bodyBackgroundColor;
-      document.body.style.color = theme.bodyForegroundColor;
-    }
-  } catch {}
-});
-
-</script>
-
+        /* ===== WORD SYNC & INITIALIZATION ===== */
+        Office.onReady((info) => {
+            if (info.host === Office.HostType.Word) {
+                loadEngine();
+            } else {
+                uiSetStatus("Please open in Word", "error");
+                uiSetEngineState("Unsupported Host");
+            }
+        });
+    </script>
 </body>
 </html>
