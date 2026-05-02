@@ -1,14 +1,7 @@
-/*
-File: layouts.json
-Path: /layouts/layouts.json
-Repository: https://github.com/RatioJuris/ab-layout
-Version: 3.1.0
-*/
-
 {
   "_meta": {
     "project": "AB Layout (Advocate Benefit Layout)",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "maintainer": "RatioJuris",
     "description": "Production-ready layout definitions for Indian courts",
     "unit": "points",
@@ -24,10 +17,10 @@ Version: 3.1.0
     },
 
     "high_court_new": {
-      "label": "High Court New* (A4)",
-      "width": 612,
-      "height": 792,
-      "margins": { "top": 72, "bottom": 72, "left": 36, "right": 108 }
+      "label": "High Court New (A4)",
+      "width": 595.27,
+      "height": 841.89,
+      "margins": { "top": 72, "bottom": 72, "left": 72, "right": 72 }
     },
 
     "notary_affidavit": {
@@ -49,11 +42,10 @@ Version: 3.1.0
     },
     {
       "id": "hc_new",
-      "name": "High Court – New* (A4)",
+      "name": "High Court – New (A4)",
       "preset": "high_court_new",
       "type": "high_court"
     },
-
     {
       "id": "district_standard",
       "name": "District Court – Standard (Legal)",
@@ -62,11 +54,10 @@ Version: 3.1.0
     },
     {
       "id": "district_new",
-      "name": "District Court – New* (A4)",
+      "name": "District Court – New (A4)",
       "preset": "high_court_new",
       "type": "district_court"
     },
-
     {
       "id": "affidavit",
       "name": "Notary / Affidavit",
