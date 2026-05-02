@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+File: manifest.xml
+Project: AB Layout (Advocate Benefit Layout)
+Version: 3.1.1.0
+Maintainer: RatioJuris
+-->
 <OfficeApp
   xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -7,13 +13,12 @@
   xsi:type="TaskPaneApp">
 
   <Id>8b7c2d3a-6f9a-4b7c-9d2e-1a2b3c4d5e6f</Id>
-  <Version>3.1.0.0</Version>
-
+  <Version>3.1.1.0</Version>
   <ProviderName>RatioJuris</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
 
   <DisplayName DefaultValue="AB Layout"/>
-  <Description DefaultValue="Legal formatting engine for Indian courts."/>
+  <Description DefaultValue="Legal formatting engine for Indian courts including High Court and District Court standards."/>
 
   <!-- ICONS -->
   <IconUrl DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icons/icon-32.png"/>
@@ -41,29 +46,22 @@
 
   <Permissions>ReadWriteDocument</Permissions>
 
-  <!-- ===== RIBBON ===== -->
-
-  <VersionOverrides
-    xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
-    xsi:type="VersionOverridesV1_1">
-
+  <!-- ===== RIBBON OVERRIDES ===== -->
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_1">
     <Hosts>
       <Host xsi:type="Document">
-
         <DesktopFormFactor>
-
-          <!-- REQUIRED FOR ExecuteFunction -->
+          <!-- FunctionFile is required for ExecuteFunction actions (Ribbon Buttons) -->
           <FunctionFile resid="functionFileUrl"/>
 
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
-
             <CustomTab id="ABLayoutTab">
               <Label resid="tabLabel"/>
 
-              <!-- ===== COURT ===== -->
+              <!-- COURT GROUP -->
               <Group id="CourtGroup">
                 <Label resid="courtGroupLabel"/>
-
+                
                 <Control xsi:type="Button" id="HighCourtBtn">
                   <Label resid="highCourtLabel"/>
                   <Supertip>
@@ -95,13 +93,11 @@
                     <FunctionName>applyDistrictCourt</FunctionName>
                   </Action>
                 </Control>
-
               </Group>
 
-              <!-- ===== AFFIDAVIT ===== -->
+              <!-- AFFIDAVIT GROUP -->
               <Group id="AffidavitGroup">
                 <Label resid="affidavitGroupLabel"/>
-
                 <Control xsi:type="Button" id="AffidavitBtn">
                   <Label resid="affidavitLabel"/>
                   <Supertip>
@@ -117,13 +113,11 @@
                     <FunctionName>applyAffidavit</FunctionName>
                   </Action>
                 </Control>
-
               </Group>
 
-              <!-- ===== ACTIONS ===== -->
+              <!-- ACTIONS GROUP -->
               <Group id="ActionGroup">
                 <Label resid="actionGroupLabel"/>
-
                 <Control xsi:type="Button" id="UndoBtn">
                   <Label resid="undoLabel"/>
                   <Supertip>
@@ -140,7 +134,6 @@
                   </Action>
                 </Control>
 
-                <!-- OPTIONAL: OPEN PANEL -->
                 <Control xsi:type="Button" id="OpenPaneBtn">
                   <Label resid="openPaneLabel"/>
                   <Icon>
@@ -153,27 +146,21 @@
                     <SourceLocation resid="taskpaneUrl"/>
                   </Action>
                 </Control>
-
               </Group>
-
+              
             </CustomTab>
-
           </ExtensionPoint>
 
-          <!-- QUICK ACCESS -->
           <ExtensionPoint xsi:type="QuickAccessToolbar">
             <OfficeCommand id="HighCourtBtn"/>
           </ExtensionPoint>
 
         </DesktopFormFactor>
-
       </Host>
     </Hosts>
 
-    <!-- ===== RESOURCES ===== -->
-
+    <!-- RESOURCES -->
     <Resources>
-
       <bt:Images>
         <bt:Image id="icon16" DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icons/icon-16.png"/>
         <bt:Image id="icon32" DefaultValue="https://ratiojuris.github.io/ab-layout/assets/icons/icon-32.png"/>
@@ -190,7 +177,6 @@
         <bt:String id="courtGroupLabel" DefaultValue="Court"/>
         <bt:String id="affidavitGroupLabel" DefaultValue="Affidavit"/>
         <bt:String id="actionGroupLabel" DefaultValue="Actions"/>
-
         <bt:String id="highCourtLabel" DefaultValue="High Court"/>
         <bt:String id="districtLabel" DefaultValue="District Court"/>
         <bt:String id="affidavitLabel" DefaultValue="Affidavit"/>
@@ -199,14 +185,11 @@
       </bt:ShortStrings>
 
       <bt:LongStrings>
-        <bt:String id="highCourtDesc" DefaultValue="Apply High Court layout"/>
-        <bt:String id="districtDesc" DefaultValue="Apply District Court layout"/>
-        <bt:String id="affidavitDesc" DefaultValue="Apply affidavit format"/>
-        <bt:String id="undoDesc" DefaultValue="Revert last layout"/>
+        <bt:String id="highCourtDesc" DefaultValue="Apply standard High Court legal layout."/>
+        <bt:String id="districtDesc" DefaultValue="Apply standard District Court legal layout."/>
+        <bt:String id="affidavitDesc" DefaultValue="Apply notary and affidavit margin presets."/>
+        <bt:String id="undoDesc" DefaultValue="Revert to the layout used before the last change."/>
       </bt:LongStrings>
-
     </Resources>
-
   </VersionOverrides>
-
 </OfficeApp>
