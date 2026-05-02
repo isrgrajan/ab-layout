@@ -1,3 +1,10 @@
+/*
+File: layouts.json
+Path: /layouts/layouts.json
+Repository: https://github.com/RatioJuris/ab-layout
+Version: 3.1.1
+*/
+
 {
   "_meta": {
     "project": "AB Layout (Advocate Benefit Layout)",
@@ -17,7 +24,7 @@
     },
 
     "high_court_new": {
-      "label": "High Court New (A4)",
+      "label": "High Court New* (A4)",
       "width": 595.27,
       "height": 841.89,
       "margins": { "top": 72, "bottom": 72, "left": 72, "right": 72 }
@@ -42,7 +49,7 @@
     },
     {
       "id": "hc_new",
-      "name": "High Court – New (A4)",
+      "name": "High Court – New* (A4)",
       "preset": "high_court_new",
       "type": "high_court"
     },
@@ -54,7 +61,7 @@
     },
     {
       "id": "district_new",
-      "name": "District Court – New (A4)",
+      "name": "District Court – New* (A4)",
       "preset": "high_court_new",
       "type": "district_court"
     },
