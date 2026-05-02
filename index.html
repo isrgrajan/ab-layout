@@ -13,143 +13,280 @@
 <link rel="canonical" href="https://ratiojuris.github.io/ab-layout/" />
 <link rel="icon" href="assets/icon-32.png" />
 
-<!-- Tailwind CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
+<style>
 
-<!-- Alpine JS -->
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+/* ===== THEME ===== */
 
-<!-- Axios -->
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+:root {
+  --bg:#f9fafb;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --primary:#0f6cbd;
+}
+
+[data-theme="dark"] {
+  --bg:#1f1f1f;
+  --text:#f5f5f5;
+  --muted:#b3b3b3;
+  --card:#2b2b2b;
+  --border:#333;
+}
+
+/* ===== BASE ===== */
+
+body {
+  margin:0;
+  font-family:Segoe UI,system-ui;
+  background:var(--bg);
+  color:var(--text);
+  transition:0.2s;
+}
+
+.container {
+  max-width:1000px;
+  margin:auto;
+  padding:20px;
+}
+
+/* ===== HERO ===== */
+
+.hero {
+  text-align:center;
+  padding:60px 20px;
+}
+
+.hero h1 {
+  font-size:36px;
+  margin-bottom:10px;
+}
+
+.hero p {
+  color:var(--muted);
+}
+
+/* ===== BUTTONS ===== */
+
+.btn {
+  padding:12px 18px;
+  border-radius:6px;
+  font-weight:600;
+  margin:6px;
+  display:inline-block;
+  cursor:pointer;
+  text-decoration:none;
+}
+
+.primary {
+  background:var(--primary);
+  color:#fff;
+}
+
+.secondary {
+  background:var(--card);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+
+/* ===== TOGGLE ===== */
+
+.toggle {
+  position:absolute;
+  top:20px;
+  right:20px;
+  cursor:pointer;
+  opacity:0.7;
+}
+
+/* ===== GRID ===== */
+
+.section {
+  margin-top:50px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+}
+
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:16px;
+  border-radius:8px;
+  transition:0.2s;
+}
+
+.card:hover {
+  transform:translateY(-2px);
+}
+
+/* ===== FOOTER ===== */
+
+.footer {
+  text-align:center;
+  margin-top:60px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.signature {
+  margin-top:6px;
+  opacity:0.6;
+  font-style:italic;
+}
+
+.status {
+  margin-top:10px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+</style>
 
 </head>
 
-<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100"
-      x-data="app()" x-init="init()">
+<body>
 
-<!-- TOGGLE -->
-<div class="absolute top-5 right-5 cursor-pointer text-xl" @click="toggleTheme()">🌗</div>
+<div class="toggle" onclick="toggleTheme()">🌗</div>
 
-<div class="max-w-5xl mx-auto p-6">
+<div class="container">
 
 <!-- HERO -->
-<section class="text-center py-16">
-  <h1 class="text-4xl font-bold mb-2">⚖ AB Layout</h1>
-  <p class="text-gray-500" x-text="desc">Loading...</p>
+<section class="hero">
+  <h1>⚖ AB Layout</h1>
+  <p id="desc">Loading layout engine...</p>
 
-  <div class="mt-6 space-x-3">
-    <a href="manifest.xml"
-       @click.prevent="downloadManifest"
-       class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold">
-       ⬇ Install Add-in
-    </a>
+  <a class="btn primary" onclick="downloadManifest(event)">
+    ⬇ Install Add-in
+  </a>
 
-    <a href="https://github.com/RatioJuris/ab-layout"
-       class="border px-5 py-2 rounded-md">
-       GitHub
-    </a>
-  </div>
+  <a class="btn secondary" href="https://github.com/RatioJuris/ab-layout">
+    GitHub
+  </a>
 
-  <div class="text-sm text-gray-500 mt-3" x-text="stats"></div>
-  <div class="text-sm text-gray-500" x-text="version"></div>
+  <div class="status" id="stats"></div>
+  <div class="status" id="version"></div>
 </section>
 
 <!-- LAYOUTS -->
-<section class="mt-10">
-  <h2 class="text-2xl font-semibold mb-4">📄 Layouts</h2>
-
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-    <template x-for="l in layouts" :key="l.id">
-      <div class="border rounded-lg p-4 bg-white dark:bg-gray-800 shadow-sm">
-        <strong x-text="l.name"></strong>
-        <div class="text-sm text-gray-500" x-text="l.type"></div>
-      </div>
-    </template>
-  </div>
+<section class="section">
+  <h2>📄 Layouts</h2>
+  <div class="grid" id="layouts"></div>
 </section>
 
 <!-- FOOTER -->
-<div class="text-center mt-16 text-sm text-gray-500">
-  © <span x-text="year"></span> AB Layout
+<div class="footer">
+  © <span id="year"></span> AB Layout  
+  <div class="signature">
+    Crafted with ⚖️ + ❤️ by RatioJuris  
+    <br/>
+    Built once, refined endlessly
+  </div>
 </div>
 
 </div>
 
 <script>
-function app(){
-  return {
-    desc: "Loading...",
-    version: "",
-    stats: "",
-    layouts: [],
-    year: new Date().getFullYear(),
 
-    CONFIG: {
-      repo: "RatioJuris/ab-layout",
-      layouts: "/ab-layout/layouts/layouts.json"
-    },
+/* ===== INIT ===== */
+document.getElementById("year").innerText = new Date().getFullYear();
 
-    async init(){
-      this.loadTheme();
-      await this.loadLayouts();
-      this.loadRepoStats();
-    },
+/* ===== THEME ===== */
+function toggleTheme(){
+  const html = document.documentElement;
+  const current = html.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
 
-    /* ===== THEME ===== */
-    toggleTheme(){
-      const html = document.documentElement;
-      const isDark = html.classList.toggle("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-    },
+(function(){
+  const saved = localStorage.getItem("theme");
+  if(saved){
+    document.documentElement.setAttribute("data-theme", saved);
+  }
+})();
 
-    loadTheme(){
-      const saved = localStorage.getItem("theme");
-      if(saved === "dark"){
-        document.documentElement.classList.add("dark");
-      }
-    },
+/* ===== LOAD LAYOUTS ===== */
+async function loadLayouts(){
+  try {
+    const res = await fetch("/ab-layout/layouts/layouts.json", {
+      cache: "no-store"
+    });
 
-    /* ===== FETCH LAYOUTS ===== */
-    async loadLayouts(){
-      try {
-        const res = await axios.get(this.CONFIG.layouts, { timeout: 5000 });
+    if(!res.ok) throw new Error("Fetch failed");
 
-        const data = res.data;
+    const data = await res.json();
 
-        this.desc = data._meta?.description || "";
-        this.version = "Version: " + (data._meta?.version || "");
-        this.layouts = data.layouts || [];
+    document.getElementById("desc").innerText =
+      data._meta?.description || "Legal formatting engine";
 
-      } catch (e) {
-        console.error("Failed to load layouts", e);
-        this.desc = "Unable to load layouts";
-      }
-    },
+    document.getElementById("version").innerText =
+      "Version: " + (data._meta?.version || "N/A");
 
-    /* ===== GITHUB STATS ===== */
-    async loadRepoStats(){
-      try {
-        const res = await axios.get(`https://api.github.com/repos/${this.CONFIG.repo}`);
-        const repo = res.data;
+    const container = document.getElementById("layouts");
+    container.innerHTML = "";
 
-        this.stats = `⭐ ${repo.stargazers_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
+    (data.layouts || []).forEach(l=>{
+      const el = document.createElement("div");
+      el.className = "card";
+      el.innerHTML = `
+        <strong>${l.name}</strong><br/>
+        <small>${l.type}</small>
+      `;
+      container.appendChild(el);
+    });
 
-      } catch {}
-    },
-
-    /* ===== DOWNLOAD ===== */
-    async downloadManifest(){
-      const res = await axios.get("manifest.xml", { responseType: "blob" });
-
-      const url = URL.createObjectURL(res.data);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "manifest.xml";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+  } catch (e){
+    console.error(e);
+    document.getElementById("desc").innerText =
+      "Unable to load layouts";
   }
 }
+
+/* ===== GITHUB STATS ===== */
+async function loadRepo(){
+  try {
+    const res = await fetch("https://api.github.com/repos/RatioJuris/ab-layout");
+    const repo = await res.json();
+
+    if(repo?.stargazers_count !== undefined){
+      document.getElementById("stats").innerText =
+        `⭐ ${repo.stargazers_count} • Updated ${new Date(repo.updated_at).toLocaleDateString()}`;
+    }
+
+  } catch {}
+}
+
+/* ===== DOWNLOAD ===== */
+async function downloadManifest(e){
+  e.preventDefault();
+
+  try {
+    const res = await fetch("manifest.xml");
+    const blob = await res.blob();
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = "manifest.xml";
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+  } catch {
+    alert("Download failed");
+  }
+}
+
+/* ===== START ===== */
+loadLayouts();
+loadRepo();
+
 </script>
 
 </body>
